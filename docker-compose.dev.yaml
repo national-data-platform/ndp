@@ -1,0 +1,82 @@
+version: "3"
+
+services:
+  # starting ckan section
+  ckan:
+    extends:
+      file: ckan-docker/docker-compose.dev.yml
+      service: ckan-dev
+    env_file:
+      - .env
+    depends_on:
+      db:
+        condition: service_healthy
+      solr:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    entrypoint: ["bash","/srv/app/start_ckan_development.sh"]
+
+  datapusher:
+    extends:
+      file: ckan-docker/docker-compose.dev.yml
+      service: datapusher
+
+  db:
+    extends:
+      file: ckan-docker/docker-compose.dev.yml
+      service: db
+
+  solr:
+    extends:
+      file: ckan-docker/docker-compose.dev.yml
+      service: solr
+
+  redis:
+    extends:
+      file: ckan-docker/docker-compose.dev.yml
+      service: redis
+  
+  # starting mlflow section
+  minio:
+    extends:
+      file: mlflow/docker-compose.yaml
+      service: minio
+
+  create-s3-buckets:
+    extends:
+      file: mlflow/docker-compose.yaml
+      service: create-s3-buckets
+
+  mlflow:
+    extends:
+      file: mlflow/docker-compose.yaml
+      service: core
+
+  # starting jhub section
+  jupyterhub:
+    build:
+      context: jhub
+      dockerfile: Dockerfile
+      args:
+        JUPYTERHUB_VERSION: latest
+    restart: always
+    image: jupyterhub
+    volumes:
+      - "./jhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro"
+      - "/var/run/docker.sock:/var/run/docker.sock:rw"
+      - "jupyterhub:/data"
+    ports:
+      - ${JUPYTERHUB_PORT}:${JUPYTERHUB_PORT}
+    environment:
+      - JUPYTERHUB_PORT
+      - DOCKER_NETWORK_NAME
+      - DOCKER_NOTEBOOK_IMAGE
+      - DOCKER_NOTEBOOK_DIR
+
+volumes:
+  ckan_storage:
+  pg_data:
+  solr_data:
+  miniodata:
+  jupyterhub:

@@ -1,0 +1,6 @@
+[submodule "ckan-docker"]
+	path = ckan-docker
+	url = git@github.com:national-data-platform/ckan-docker.git
+[submodule "mlflow"]
+	path = mlflow
+	url = git@github.com:national-data-platform/mlflow.git
