@@ -75,6 +75,21 @@ services:
       - DOCKER_NOTEBOOK_IMAGE
       - DOCKER_NOTEBOOK_DIR
 
+  nginx:
+    image: nginx:alpine3.18-slim
+    depends_on:
+      - ckan
+      - jupyterhub
+      - mlflow
+    ports:
+      - "4000:80"
+    environment:
+      - CKAN_PORT
+      - JUPYTERHUB_PROXY_PORT
+      - MLFLOW_PORT
+    volumes:
+      - ${PWD}/nginx/dev.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+
 volumes:
   ckan_storage:
   pg_data:

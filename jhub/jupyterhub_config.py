@@ -21,6 +21,10 @@ network_name = os.environ["DOCKER_NETWORK_NAME"]
 c.DockerSpawner.use_internal_ip = True
 c.DockerSpawner.network_name = network_name
 
+# Force the proxy to only listen to connections to 127.0.0.1 (on port proxy_port)
+proxy_port = os.environ["JUPYTERHUB_PROXY_PORT"]
+c.JupyterHub.bind_url = f'http://127.0.0.1:{proxy_port}'
+
 # Explicitly set notebook directory because we'll be mounting a volume to it.
 # Most `jupyter/docker-stacks` *-notebook images run the Notebook server as
 # user `jovyan`, and set the notebook directory to `/home/jovyan/work`.
