@@ -1,3 +1,9 @@
 FROM quay.io/jupyter/base-notebook:latest
 
-COPY ./starter_content/train_unet.ipynb ./work/
+# Install all needed packages
+RUN conda install -y gcc gxx_linux-64
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+
+# Copy starter notebooks, Python files, etc
+COPY ./starter_content/ ./work/

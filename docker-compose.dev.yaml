@@ -74,6 +74,12 @@ services:
       - DOCKER_NETWORK_NAME
       - DOCKER_NOTEBOOK_IMAGE
       - DOCKER_NOTEBOOK_DIR
+      # for MLFlow connection:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - MLFLOW_TRACKING_URI
+      - MLFLOW_S3_ENDPOINT_URL
+      - AWS_BUCKET_NAME
 
 volumes:
   ckan_storage:
