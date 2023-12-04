@@ -4,3 +4,6 @@
 [submodule "mlflow"]
 	path = mlflow
 	url = git@github.com:national-data-platform/mlflow.git
+[submodule "ndp-frontend"]
+	path = ndp-frontend
+	url = git@github.com:national-data-platform/ndp-frontend.git
