@@ -81,6 +81,14 @@ services:
       - MLFLOW_S3_ENDPOINT_URL
       - AWS_BUCKET_NAME
 
+  frontend:
+    build:
+      context: ndp-frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+
 volumes:
   ckan_storage:
   pg_data:
