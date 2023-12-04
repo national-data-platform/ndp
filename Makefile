@@ -3,11 +3,13 @@ COMPOSE_FILE=docker-compose.dev.yaml
 default: build-run
 
 build:
+	docker build ./jhub/spawn_image -t jhub-spawn
 	docker compose -f $(COMPOSE_FILE) build
 
 build-run:
 	docker pull quay.io/jupyter/base-notebook:latest
 	cp .env.example ckan-docker/.env
+	docker build ./jhub/spawn_image -t jhub-spawn
 	docker compose -f $(COMPOSE_FILE) up --build -d
 
 restart:
