@@ -61,3 +61,12 @@ c.NativeAuthenticator.open_signup = True
 admin = os.environ.get("JUPYTERHUB_ADMIN")
 if admin:
     c.Authenticator.admin_users = [admin]
+
+# Pass environment variables for MLFlow connection
+c.DockerSpawner.environment = {
+    'AWS_ACCESS_KEY_ID': os.environ.get('AWS_ACCESS_KEY_ID'),
+    'AWS_SECRET_ACCESS_KEY': os.environ.get('AWS_SECRET_ACCESS_KEY'),
+    'MLFLOW_TRACKING_URI': os.environ.get('MLFLOW_TRACKING_URI'),
+    'MLFLOW_S3_ENDPOINT_URL': os.environ.get('MLFLOW_S3_ENDPOINT_URL'),
+    'AWS_BUCKET_NAME': os.environ.get('AWS_BUCKET_NAME'),
+}

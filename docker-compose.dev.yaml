@@ -15,6 +15,9 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+    volumes:
+      - ckan_storage:/var/lib/ckan
+      - ./src_extensions:/srv/app/src_extensions
     entrypoint: ["bash","/srv/app/start_ckan_development.sh"]
 
   datapusher:
@@ -74,6 +77,20 @@ services:
       - DOCKER_NETWORK_NAME
       - DOCKER_NOTEBOOK_IMAGE
       - DOCKER_NOTEBOOK_DIR
+      # for MLFlow connection:
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - MLFLOW_TRACKING_URI
+      - MLFLOW_S3_ENDPOINT_URL
+      - AWS_BUCKET_NAME
+
+  frontend:
+    build:
+      context: ndp-frontend
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 3000:3000
 
   nginx:
     image: nginx:alpine3.18-slim

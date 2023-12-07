@@ -41,3 +41,14 @@ Cleanup and delete volumes:
 ```
 make dist-clean
 ```
+
+## CKAN NDP Extension
+Install [ndp ckan extension](https://github.com/national-data-platform/ckanext-ndp):
+```
+make download-ckanext-ndp
+```
+
+Install extension and update ckan config to add Jupyterhub endpoint:
+```
+make update-ckan-config
+```
