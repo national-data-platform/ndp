@@ -3,6 +3,7 @@
 
 # Configuration file for JupyterHub
 import os
+from oauthenticator.generic import GenericOAuthenticator
 
 c = get_config()  # noqa: F821
 
@@ -48,10 +49,20 @@ c.JupyterHub.cookie_secret_file = "/data/jupyterhub_cookie_secret"
 c.JupyterHub.db_url = "sqlite:////data/jupyterhub.sqlite"
 
 # Authenticate users with Native Authenticator
-c.JupyterHub.authenticator_class = "nativeauthenticator.NativeAuthenticator"
-
-# Allow anyone to sign-up without approval
-c.NativeAuthenticator.open_signup = True
+c.JupyterHub.authenticator_class = GenericOAuthenticator
+c.GenericOAuthenticator.client_id = os.environ.get("JUPYTERHUB_KEYCLOAK_CLIENT_ID")
+c.GenericOAuthenticator.client_secret = os.environ.get("JUPYTERHUB_KEYCLOAK_CLIENT_SECRET")
+c.GenericOAuthenticator.token_url = os.environ.get("OAUTH2_TOKEN_URL")
+c.GenericOAuthenticator.userdata_url = os.environ.get("KEYCLOAK_USERDATA_URL")
+c.GenericOAuthenticator.userdata_params = {'state': 'state'}
+c.GenericOAuthenticator.username_key = 'preferred_username'
+c.GenericOAuthenticator.login_service = 'Keycloak'
+c.GenericOAuthenticator.scope = ['openid', 'profile']
+c.GenericOAuthenticator.allow_all = True
+c.Authenticator.auto_login = True
+# c.Authenticator.add_user_cmd = ['adduser', '-q', '--gecos', '""', '--disabled-password', '--force-badname']
+# c.Authenticator.blacklist = set()
+# c.Authenticator.whitelist = set()
 
 # Allowed admins
 admin = os.environ.get("JUPYTERHUB_ADMIN")

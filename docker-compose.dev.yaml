@@ -83,6 +83,12 @@ services:
       - MLFLOW_TRACKING_URI
       - MLFLOW_S3_ENDPOINT_URL
       - AWS_BUCKET_NAME
+      # keycloak
+      - OAUTH2_AUTHORIZE_URL
+      - OAUTH2_TOKEN_URL
+      - KEYCLOAK_USERDATA_URL
+      - JUPYTERHUB_KEYCLOAK_CLIENT_ID
+      - JUPYTERHUB_KEYCLOAK_CLIENT_SECRET
 
   frontend:
     build:
