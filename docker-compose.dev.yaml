@@ -97,6 +97,14 @@ services:
     restart: always
     ports:
       - 3000:3000
+    environment:
+      - KEYCLOAK_ID
+      - KEYCLOAK_SECRET
+      - KEYCLOAK_ISSUER
+      - NEXTAUTH_URL
+      - NEXTAUTH_SECRET
+      - NEXT_PUBLIC_NDP_PASSWORD
+      - NEXT_PUBLIC_CKAN_URL
 
 volumes:
   ckan_storage:
