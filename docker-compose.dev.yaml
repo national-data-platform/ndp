@@ -83,6 +83,12 @@ services:
       - MLFLOW_TRACKING_URI
       - MLFLOW_S3_ENDPOINT_URL
       - AWS_BUCKET_NAME
+      # keycloak
+      - OAUTH2_AUTHORIZE_URL
+      - OAUTH2_TOKEN_URL
+      - KEYCLOAK_USERDATA_URL
+      - JUPYTERHUB_KEYCLOAK_CLIENT_ID
+      - JUPYTERHUB_KEYCLOAK_CLIENT_SECRET
 
   frontend:
     build:
@@ -91,6 +97,14 @@ services:
     restart: always
     ports:
       - 3000:3000
+    environment:
+      - KEYCLOAK_ID
+      - KEYCLOAK_SECRET
+      - KEYCLOAK_ISSUER
+      - NEXTAUTH_URL
+      - NEXTAUTH_SECRET
+      - NEXT_PUBLIC_NDP_PASSWORD
+      - NEXT_PUBLIC_CKAN_URL
 
   nginx:
     image: nginx:alpine3.18-slim
