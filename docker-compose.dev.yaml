@@ -26,7 +26,6 @@ services:
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
 
-
   datapusher:
     extends:
       file: ckan-docker/docker-compose.dev.yml
@@ -59,9 +58,22 @@ services:
       service: create-s3-buckets
 
   mlflow:
-    extends:
-      file: mlflow/docker-compose.yaml
-      service: core
+    build:
+      context: mlflow/core
+      dockerfile: Dockerfile
+    depends_on:
+      - minio
+      - db
+    environment:
+      - GUNICORN_CMD_ARGS
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_BUCKET_NAME
+      - MLFLOW_S3_ENDPOINT_URL
+      - MLFLOW_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
 
   # starting jhub section
   jupyterhub:
@@ -102,8 +114,6 @@ services:
       context: ndp-frontend
       dockerfile: Dockerfile
     restart: always
-    ports:
-      - 3000:3000
     environment:
       - KEYCLOAK_ID
       - KEYCLOAK_SECRET
@@ -120,13 +130,16 @@ services:
       - jupyterhub
       - mlflow
     ports:
-      - "4000:80"
+      - "0.0.0.0:8443:80"
+      #- "0.0.0.0:8443:443"
     environment:
       - CKAN_PORT
       - JUPYTERHUB_PROXY_PORT
       - MLFLOW_PORT
     volumes:
-      - ${PWD}/nginx/dev.conf.template:/etc/nginx/templates/nginx.conf.template:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
 
 volumes:
   ckan_storage:
