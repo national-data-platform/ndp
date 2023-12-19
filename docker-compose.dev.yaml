@@ -3,9 +3,12 @@ version: "3"
 services:
   # starting ckan section
   ckan:
-    extends:
-      file: ckan-docker/docker-compose.dev.yml
-      service: ckan-dev
+    build:
+      context: ckan-docker/ckan
+      dockerfile: Dockerfile.dev
+      # dockerfile: Dockerfile
+      args:
+        - TZ=${TZ}
     env_file:
       - .env
     depends_on:
@@ -18,7 +21,11 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
-    entrypoint: ["bash","/srv/app/start_ckan_development.sh"]
+      # - ./ckan.ini:/srv/app/ckan.ini
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
+
 
   datapusher:
     extends:
