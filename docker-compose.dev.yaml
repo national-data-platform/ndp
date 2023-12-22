@@ -22,7 +22,7 @@ services:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
       # - ./ckan.ini:/srv/app/ckan.ini
-    restart: unless-stopped
+    restart: always
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
 
@@ -30,32 +30,38 @@ services:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: datapusher
+    restart: always
 
   db:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: db
+    restart: always
 
   solr:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: solr
+    restart: always
 
   redis:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: redis
+    restart: always
   
   # starting mlflow section
   minio:
     extends:
       file: mlflow/docker-compose.yaml
       service: minio
+    restart: always
 
   create-s3-buckets:
     extends:
       file: mlflow/docker-compose.yaml
       service: create-s3-buckets
+    restart: always
 
   mlflow:
     build:
@@ -82,6 +88,7 @@ services:
       - MLFLOW_DEFAULT_PASSWORD
       - MLFLOW_TRACKING_USERNAME
       - MLFLOW_TRACKING_PASSWORD
+    restart: always
 
   # starting jhub section
   jupyterhub:
@@ -143,6 +150,7 @@ services:
     ports:
       - "0.0.0.0:8443:80"
       #- "0.0.0.0:8443:443"
+    restart: always
     environment:
       - CKAN_PORT
       - JUPYTERHUB_PROXY_PORT
