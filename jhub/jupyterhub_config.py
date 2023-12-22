@@ -107,6 +107,8 @@ def pre_spawn_hook(spawner):
         logging.info(f'MLFlow user creation succeed.')
     except AssertionError as e:
         logging.info(f'MLFlow user creation failed: {str(e)}')
+    except requests.exceptions.ConnectionError:
+        logging.info(f'MLFlow Connection error, check that MLFlow service is not down.')
 
 
 c.DockerSpawner.pre_spawn_hook = pre_spawn_hook
