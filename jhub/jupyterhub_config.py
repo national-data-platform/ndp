@@ -4,6 +4,8 @@
 # Configuration file for JupyterHub
 import os
 from oauthenticator.generic import GenericOAuthenticator
+import requests
+import logging
 
 c = get_config()  # noqa: F821
 
@@ -47,7 +49,6 @@ c.DockerSpawner.debug = True
 c.JupyterHub.hub_ip = "jupyterhub"
 c.JupyterHub.hub_port = int(os.environ.get("JUPYTERHUB_PORT", 8080))
 
-
 # Persist hub data on volume mounted inside container
 c.JupyterHub.cookie_secret_file = "/data/jupyterhub_cookie_secret"
 c.JupyterHub.db_url = "sqlite:////data/jupyterhub.sqlite"
@@ -79,5 +80,33 @@ c.DockerSpawner.environment = {
     'AWS_SECRET_ACCESS_KEY': os.environ.get('AWS_SECRET_ACCESS_KEY'),
     'MLFLOW_TRACKING_URI': os.environ.get('MLFLOW_TRACKING_URI'),
     'MLFLOW_S3_ENDPOINT_URL': os.environ.get('MLFLOW_S3_ENDPOINT_URL'),
+    'MLFLOW_TRACKING_PASSWORD': os.environ.get('MLFLOW_DEFAULT_PASSWORD'),
     'AWS_BUCKET_NAME': os.environ.get('AWS_BUCKET_NAME'),
 }
+
+
+def pre_spawn_hook(spawner):
+    # make username available for MLflow library
+    username = spawner.user.name
+    spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
+
+    # create user inside MLFlow using its admin account
+    try:
+        logging.info(f'Trying to create new MLFlow user.')
+        response = requests.post(
+            f"{os.environ.get('MLFLOW_TRACKING_URI')}/api/2.0/mlflow/users/create",
+            json={
+                "username": username,
+                "password": os.environ.get('MLFLOW_DEFAULT_PASSWORD'),
+            },
+            auth=(os.environ.get('MLFLOW_ADMIN_USERNAME'), os.environ.get('MLFLOW_ADMIN_PASSWORD')),
+        )
+
+        logging.info(f'{response.status_code}')
+        assert response.status_code == 200, response.json()['error_code']
+        logging.info(f'MLFlow user creation succeed.')
+    except AssertionError as e:
+        logging.info(f'MLFlow user creation failed: {str(e)}')
+
+
+c.DockerSpawner.pre_spawn_hook = pre_spawn_hook
