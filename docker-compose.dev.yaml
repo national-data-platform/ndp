@@ -3,9 +3,12 @@ version: "3"
 services:
   # starting ckan section
   ckan:
-    extends:
-      file: ckan-docker/docker-compose.dev.yml
-      service: ckan-dev
+    build:
+      context: ckan-docker/ckan
+      dockerfile: Dockerfile.dev
+      # dockerfile: Dockerfile
+      args:
+        - TZ=${TZ}
     env_file:
       - .env
     depends_on:
@@ -18,43 +21,75 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
-    entrypoint: ["bash","/srv/app/start_ckan_development.sh"]
+      # - ./ckan.ini:/srv/app/ckan.ini
+    restart: always
+    healthcheck:
+      test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
 
   datapusher:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: datapusher
+    restart: always
 
   db:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: db
+    restart: always
 
   solr:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: solr
+    restart: always
 
   redis:
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: redis
+    restart: always
   
   # starting mlflow section
   minio:
     extends:
       file: mlflow/docker-compose.yaml
       service: minio
+    restart: always
 
   create-s3-buckets:
     extends:
       file: mlflow/docker-compose.yaml
       service: create-s3-buckets
+    restart: always
 
   mlflow:
-    extends:
-      file: mlflow/docker-compose.yaml
-      service: core
+    build:
+      context: mlflow/core
+      dockerfile: Dockerfile
+    depends_on:
+      - minio
+      - db
+    environment:
+      - GUNICORN_CMD_ARGS
+      - AWS_ACCESS_KEY_ID
+      - AWS_SECRET_ACCESS_KEY
+      - AWS_BUCKET_NAME
+      - MLFLOW_S3_ENDPOINT_URL
+      - MLFLOW_PORT
+      - POSTGRES_USER
+      - POSTGRES_PASSWORD
+      - POSTGRES_DB
+      - KEYCLOAK_ISSUER
+      - MLFLOW_FLASK_SECRET_KEY
+      - MLFLOW_HOST
+      - MLFLOW_KEYCLOAK_CLIENT_ID
+      - MLFLOW_KEYCLOAK_CLIENT_SECRET
+      - MLFLOW_DEFAULT_PASSWORD
+      - MLFLOW_TRACKING_USERNAME
+      - MLFLOW_TRACKING_PASSWORD
+      - MLFLOW_ROOT_PATH
+    restart: always
 
   # starting jhub section
   jupyterhub:
@@ -98,8 +133,6 @@ services:
       context: ndp-frontend
       dockerfile: Dockerfile
     restart: always
-    ports:
-      - 3000:3000
     environment:
       - KEYCLOAK_ID
       - KEYCLOAK_SECRET
@@ -108,6 +141,25 @@ services:
       - NEXTAUTH_SECRET
       - NEXT_PUBLIC_NDP_PASSWORD
       - NEXT_PUBLIC_CKAN_URL
+
+  nginx:
+    image: nginx:alpine3.18-slim
+    depends_on:
+      - ckan
+      - jupyterhub
+      - mlflow
+    ports:
+      - "0.0.0.0:8443:80"
+      #- "0.0.0.0:8443:443"
+    restart: always
+    environment:
+      - CKAN_PORT
+      - JUPYTERHUB_PROXY_PORT
+      - MLFLOW_PORT
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
 
 volumes:
   ckan_storage:
