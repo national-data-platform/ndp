@@ -96,8 +96,6 @@ Next, append `keycloak` to the ckan plugin environment variable `CKAN__PLUGINS`.
 ### Remarks
 1. There are cases when ckan doesn't pick up some environment variables from the .env file so sometimes its better to mount a copy of the ckan.ini file. There is a comment in the docker-compose file for this in this [line](/docker-compose.dev.yaml?plain=24). I have noticed that it sometimes doesn't pick up `CKAN___ROOT__PATH` which is needed for the nginx reverse proxy to work.
 
-
-
 ## Production mode
 
 For now, the development docker-compose file is used for production mode with some minor adjustments (the nginx config file and docker-compose file).
