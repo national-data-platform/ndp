@@ -1,0 +1,613 @@
+jupyterhub:
+  hub:
+    config:
+      GenericOAuthenticator:
+        client_id: jhub-local
+        client_secret:
+        oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
+        token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
+        userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
+        login_service: keycloak
+        username_claim: email
+        username_key: preferred_username
+        userdata_params:
+          state: state
+        allow_all: True
+        scope:
+          - openid
+          - profile
+      JupyterHub:
+        admin_access: true
+        authenticator_class: generic-oauth
+        admin_users: ["i3perez@ucsd.edu","segurvich@ucsd.edu"]
+    service:
+      type: ClusterIP
+      annotations: {}
+      ports:
+        nodePort:
+      loadBalancerIP:
+    deploymentStrategy:
+      type: Recreate
+    db:
+      type: sqlite-pvc
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        storage: 10Gi
+        storageClassName: rook-ceph-block
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+    networkPolicy:
+      enabled: false
+    extraConfig:
+      default.py: |
+        from kubespawner import KubeSpawner
+
+        class MySpawner(KubeSpawner):
+          notebook_dir = '/srv/starter_content'
+          profile_form_template = """
+            <style>
+            /* The profile description should not be bold, even though it is inside the <label> tag */
+                font-weight: normal;
+            }
+            </style>
+
+            <p>/home/jovyan is persistent volume, 50GB by default. Make sure you don't fill it up - jupyter won't start next time. You can ask admins to increase the size.<br/>
+            The storage is created in West ceph pool by default. You can ask admins to move it to a different region.</p>
+            <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
+            <p>Contact NDP admins.</p>
+
+            <label for="region">Region</label>
+            <select class="form-control input-lg" name="region">
+              <option value="" selected="selected">Any</option>
+              <option value="us-west">West</option>
+              <option value="us-mountain">Mountain</option>
+              <option value="us-central">Central</option>
+              <option value="us-east">East</option>
+            </select>
+
+
+            <label for="gpus">GPUs</label>
+            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="8"/>
+            <br/>
+            <label for="ram">Cores</label>
+            <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
+            <br/>
+            <label for="ram">RAM, GB</label>
+            <input class="form-control input-lg" type="number" name="ram" value="8" min="1" max="512"/>
+            <br/>
+            <label for="gputype">GPU type</label>
+            <select class="form-control input-lg" name="gputype">
+              <option value="" selected="selected">Any</option>
+              <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
+              <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
+              <option value="Quadro-M4000">Quadro M4000</option>
+              <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>
+              <option value="NVIDIA-A100-SXM4-80GB">NVIDIA A100 80GB</option>
+              <option value="NVIDIA-GeForce-GTX-1080-Ti">NVIDIA GeForce GTX 1080 Ti</option>
+              <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
+              <option value="NVIDIA-TITAN-Xp">NVIDIA TITAN Xp</option>
+              <option value="Tesla-T4">Tesla T4</option>
+              <option value="NVIDIA-GeForce-RTX-3090">NVIDIA GeForce RTX 3090</option>
+              <option value="NVIDIA-TITAN-RTX">NVIDIA TITAN RTX</option>
+              <option value="NVIDIA-RTX-A5000">NVIDIA RTX A5000</option>
+              <option value="Quadro-RTX-6000">Quadro RTX 6000</option>
+              <option value="Tesla-V100-SXM2-32GB">Tesla V100 SXM2 32GB</option>
+              <option value="NVIDIA-A40">NVIDIA A40</option>
+              <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
+              <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
+            </select>
+            <br/>
+            <label for="shm">/dev/shm for pytorch</label> <input class="form-control" type="checkbox" name="shm">
+            <br/>
+
+            <div class='form-group' id='kubespawner-profiles-list'>
+
+            <label>Image</label>
+            {% for profile in profile_list %}
+            <label for='profile-item-{{ loop.index0 }}' class='form-control input-group'>
+                <div class='col-md-1'>
+                    <input type='radio' name='profile' id='profile-item-{{ loop.index0 }}' value='{{ loop.index0 }}' {% if profile.default %}checked{% endif %} />
+                </div>
+                <div class='col-md-11'>
+                    <strong>{{ profile.display_name }}</strong>
+                    {% if profile.description %}
+                    <p>{{ profile.description }}</p>
+                    {% endif %}
+                </div>
+            </label>
+            {% endfor %}
+            </div>
+            
+            <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
+
+            <label for="arch">Architecture</label>
+            <select class="form-control input-lg" name="arch">
+              <option value="amd64" selected="selected">amd64</option>
+              <option value="arm64">arm64</option>
+            </select>
+            """
+
+          def options_from_form(self, formdata):
+            cephfs_pvc_users = {}
+            if not self.profile_list or not hasattr(self, '_profile_list'):
+                return formdata
+            selected_profile = int(formdata.get('profile', [0])[0])
+            options = self._profile_list[selected_profile]
+            self.log.info("Applying KubeSpawner override for profile '%s'", options['display_name'])
+            kubespawner_override = options.get('kubespawner_override', {})
+
+            gpus = int(formdata.get('gpus', [0])[0])
+
+            for k, v in kubespawner_override.items():
+                if callable(v):
+                    v = v(self)
+                    self.log.info(".. overriding KubeSpawner value %s=%s (callable result)", k, v)
+                else:
+                    self.log.info(".. overriding KubeSpawner value %s=%s", k, v)
+
+                if k != "image":
+                  setattr(self, k, v)
+                else:
+                  image = v
+                  if isinstance(v, dict):
+                    if gpus > 0:
+                      image = v["cuda"]
+                    else:
+                      image = v["cpu"]
+
+                  if not (":" in image):
+                    image += ":"+formdata.get('tag', [0])[0]
+                  if not (":" in image):
+                    image += ":"+formdata.get('tag', [0])[0]
+                  
+                  setattr(self, k, image)
+
+            setattr(self, "extra_resource_limits", {"nvidia.com/gpu": gpus})
+
+            setattr(self, "mem_guarantee", formdata.get('ram', [0])[0]+"G")
+
+            setattr(self, "cpu_guarantee", float(formdata.get('cores', [0])[0]))
+
+            setattr(self, "mem_limit", formdata.get('ram', [0])[0]+"G")
+
+            setattr(self, "cpu_limit", float(formdata.get('cores', [0])[0]))
+
+            nodeSelectorTermsExpressions = [{
+              'key': 'kubernetes.io/arch',
+              'operator': 'In',
+              'values': [formdata.get('arch', [0])[0]]
+            }]
+
+            tolerations = []
+            if formdata.get('arch', [0])[0] == "arm64":
+              tolerations=[
+                {
+                  "effect": "NoSchedule",
+                  "key": "nautilus.io/arm64",
+                  "value": "true"
+                }
+              ]
+
+            if formdata.get('gputype', [0])[0]:
+              nodeSelectorTermsExpressions.append({
+                'key': 'nvidia.com/gpu.product',
+                'operator': 'In',
+                'values': formdata.get('gputype', [0])
+              })
+
+            if formdata.get('region', [0])[0] != "":
+              nodeSelectorTermsExpressions.append({
+                'key': 'topology.kubernetes.io/region',
+                'operator': 'In',
+                'values': formdata.get('region', [0])
+              })
+
+            if len(nodeSelectorTermsExpressions) > 0:
+              setattr(self, 'extra_pod_config', {
+                'securityContext': {
+                  'fsGroupChangePolicy': 'OnRootMismatch',
+                  'fsGroup': 100
+                },
+                'affinity': {
+                    'nodeAffinity': {
+                        'requiredDuringSchedulingIgnoredDuringExecution': {
+                            'nodeSelectorTerms': [{
+                                'matchExpressions': nodeSelectorTermsExpressions,
+                            }],
+                        },
+                    },
+                },
+                'tolerations': tolerations
+              })
+
+            self.volume_mounts = [
+              {
+                'name': 'volume-{username}',
+                'mountPath': '/home/jovyan',
+              }
+            ]
+            self.volumes = [
+              {
+                'name': 'volume-{username}',
+                'persistentVolumeClaim': {
+                  'claimName': 'claim-{username}'
+                }
+              }
+            ]
+
+            if formdata.get('shm', [0])[0]:
+              self.volume_mounts.append({
+                  'name': 'dshm',
+                  'mountPath': '/dev/shm',
+                })
+              self.volumes.append({
+                  'name': 'dshm',
+                  'emptyDir': {'medium': 'Memory'}
+                })
+
+            if self.user.name in cephfs_pvc_users:
+                self.volume_mounts.append({
+                    'name': 'cephfs',
+                    'mountPath': '/cephfs',
+                  })
+                self.volumes.append({
+                    'name': 'cephfs',
+                    'persistentVolumeClaim': {
+                      'claimName': 'jupyterlab-cephfs-'+cephfs_pvc_users[self.user.name]
+                    }
+                  })
+
+
+            return options
+
+          profile_list = [
+              {
+                  'display_name': "PGML No-Deps AMD64",
+                  'slug': 'matlab',
+                  'kubespawner_override': {
+                    'image': 'segurvich/jhub-spawn:lite1',
+                  }
+              },
+              {
+                  'display_name': "PGML Full ARM64",
+                  'slug': 'matlab',
+                  'kubespawner_override': {
+                    'image': 'segurvich/jhub-spawn:v1',
+                  }
+              },
+              {
+                  'display_name': 'WIFIRE Commons Demo',
+                  'default': True
+              },
+              {
+                  'display_name': 'Sage Edge Computing'
+              },
+              {
+                  'display_name': 'Stack Scipy',
+                  'slug': 'scipy',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/scipy',
+                      'cpu': 'jupyter/scipy-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack R',
+                  'slug': 'r',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/r',
+                      'cpu': 'jupyter/r-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack Julia',
+                  'slug': 'julia',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/julia',
+                      'cpu': 'jupyter/julia-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack Tensorflow',
+                  'slug': 'tf',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/tensorflow',
+                      'cpu': 'jupyter/tensorflow-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack Datascience (scipy, Julia, R)',
+                  'slug': 'ds',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/datascience',
+                      'cpu': 'jupyter/datascience-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack Pyspark',
+                  'slug': 'pyspark',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/pyspark',
+                      'cpu': 'jupyter/pyspark-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': 'Stack All Spark',
+                  'slug': 'allspark',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/all-spark',
+                      'cpu': 'jupyter/all-spark-notebook:latest'
+                    }
+                  }
+              },
+              {
+                  'display_name': "NRP Matlab",
+                  'slug': 'matlab',
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/matlab',
+                  }
+              },
+              {
+                  'display_name': "NRP OSGEO",
+                  'slug': 'osgeo',
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/osgeo-notebook',
+                  }
+              },
+              {
+                  'display_name': "B-Data python scipy",
+                  'slug': 'b-data-scipy',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/python/scipy:3.11.5',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/python/scipy:3.11.5'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data Julia",
+                  'slug': 'b-data-julia',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/julia/base:1.9.3',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/julia/base:1.9.3'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data QGIS",
+                  'slug': 'b-data-qgis',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/qgis/base:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/qgis/base:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R",
+                  'slug': 'b-data-r',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/base:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/base:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R geospatial",
+                  'slug': 'b-data-r-geospatial',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/geospatial:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/geospatial:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R qgisprocess",
+                  'slug': 'b-data-r-qgisprocess',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/qgisprocess:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/qgisprocess:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R r-ver",
+                  'slug': 'b-data-r-r-ver',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/r-ver:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/r-ver:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R tidyverse",
+                  'slug': 'b-data-r-tidyverse',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/tidyverse:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/tidyverse:4.3.1'
+                    }
+                  }
+              },
+              {
+                  'display_name': "B-Data R verse",
+                  'slug': 'b-data-r-verse',
+                  'kubespawner_override': {
+                    'image': {
+                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/verse:4.3.1',
+                      'cpu': 'glcr.b-data.ch/jupyterlab/r/verse:4.3.1'
+                    }
+                  }
+              },
+          ]
+        c.JupyterHub.spawner_class = MySpawner
+        c.JupyterHub.allow_named_servers = True
+        #c.JupyterHub.template_vars = {'announcement_login': 'You can your organization to be added to the list in <a href="https://ucsd-prp.gitlab.io/userdocs/start/contact/">[matrix]</a>. K8s namespace membership doesn\'t grant you access to jupyterhub.'}
+        c.MySpawner.environment = {
+            'AWS_ACCESS_KEY_ID': 'admin',
+            'AWS_SECRET_ACCESS_KEY': 'sample_key',
+            'MLFLOW_TRACKING_URI': 'https://ndp-staging.sdsc.edu/mlflow',
+            'MLFLOW_S3_ENDPOINT_URL': 'http://minio:9000',
+            'MLFLOW_TRACKING_PASSWORD': 'password',
+            'AWS_BUCKET_NAME': 'mlflow',
+        }
+        # Remove containers once they are stopped
+        c.MySpawner.remove = True
+        
+        def pre_spawn_hook(spawner):
+        
+          # make username available for MLflow library
+          username = spawner.user.name
+          spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
+        
+        c.MySpawner.pre_spawn_hook = pre_spawn_hook
+
+  proxy:
+    secretToken: 693f72d455485b0a90a27968685e08e006523320e914f07b1f15fc4e8487d6fd
+    service:
+      type: ClusterIP
+    chp:
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+
+  singleuser:
+    uid: 1000
+    fsGid: 100
+    extraPodConfig:
+      securityContext:
+          fsGroupChangePolicy: "OnRootMismatch"
+    cloudMetadata:
+      blockWithIptables: false
+    networkPolicy:
+      enabled: false
+    initContainers:
+    - name: volume-permissions
+      image: busybox
+      command: ["sh", "-c", "chmod 777 /home/jovyan"]
+      volumeMounts:
+      - mountPath: /home/jovyan
+        name: volume-{username}{servername}
+#    - name: copy-content
+#      image: busybox
+#      restartPolicy: Always
+#      command: [ "sh", "-c", "cp /srv/starter_content/pgml_eda.ipynb /home/jovyan/pgml_eda.ipynb" ]
+#      volumeMounts:
+#        - mountPath: /home/jovyan
+#          name: volume-{username}{servername}
+    storage:
+      type: dynamic
+      extraLabels: {}
+      extraVolumes: []
+      extraVolumeMounts: []
+      capacity: 100Gi
+      homeMountPath: /home/jovyan
+      dynamic:
+        storageClass: rook-ceph-block
+        pvcNameTemplate: claim-{username}-{servername}
+        volumeNameTemplate: volume-{username}-{servername}
+        storageAccessModes: [ReadWriteOnce]
+    image:
+      name: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/minimal
+      tag: latest
+    startTimeout: 600
+    cpu:
+      limit: 3
+      guarantee: 3
+    memory:
+      limit: 32G
+      guarantee: 32G
+    extraResource:
+      limits: {}
+      guarantees: {}
+    cmd: jupyterhub-singleuser
+    defaultUrl: "/lab"
+    profileList:
+      - display_name: NDP Stack Minimal
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/minimal
+      - display_name: Stack Minimal + Desktop GUI
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/desktop
+      - display_name: Stack Minimal + Desktop GUI + Relion
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/relion-desktop
+      - display_name: Stack Scipy
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/scipy
+      - display_name: Stack R
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/r
+      - display_name: Stack Tensorflow
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/tensorflow
+      - display_name: Stack Tensorflow + PRP added libs
+      - display_name: Stack Datascience
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/datascience
+      - display_name: Stack Pyspark
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/pyspark
+      - display_name: Stack All Spark
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/all-spark
+
+  scheduling:
+    userScheduler:
+      enabled: false
+    userPlaceholder:
+      enabled: false
+  # prePuller relates to the hook|continuous-image-puller DaemonsSets
+  prePuller:
+    hook:
+      enabled: false
+    continuous:
+      enabled: false
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: haproxy
+    hosts: ["ndp-test-jupyterhub.nrp-nautilus.io"]
+    pathSuffix: ''
+    tls:
+      - hosts:
+        - ndp-test-jupyterhub.nrp-nautilus.io
+
+  cull:
+    enabled: true
+    users: false
+    removeNamedServers: false
+    timeout: 3600
+    every: 600
+    concurrency: 10
+    maxAge: 0
