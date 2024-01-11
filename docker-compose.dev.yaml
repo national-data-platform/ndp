@@ -21,7 +21,7 @@ services:
     volumes:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
-      - ./ckan.ini:/srv/app/ckan.ini
+      # - ./ckan.ini:/srv/app/ckan.ini
     restart: always
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
