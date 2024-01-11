@@ -25,8 +25,8 @@ c.DockerSpawner.use_internal_ip = True
 c.DockerSpawner.network_name = network_name
 
 # Force the proxy to only listen to connections to 127.0.0.1 (on port proxy_port)
-proxy_port = os.environ["JUPYTERHUB_PROXY_PORT"]
-c.JupyterHub.bind_url = f'http://127.0.0.1:{proxy_port}'
+c.JupyterHub.bind_url = os.environ["JUPYTERHUB_BIND_URL"]
+c.JupyterHub.base_url = os.environ.get("JUPYTERHUB_BASE_URL",'/jupyterhub/')
 
 # Explicitly set notebook directory because we'll be mounting a volume to it.
 # Most `jupyter/docker-stacks` *-notebook images run the Notebook server as
@@ -58,6 +58,7 @@ c.JupyterHub.authenticator_class = GenericOAuthenticator
 c.GenericOAuthenticator.client_id = os.environ.get("JUPYTERHUB_KEYCLOAK_CLIENT_ID")
 c.GenericOAuthenticator.client_secret = os.environ.get("JUPYTERHUB_KEYCLOAK_CLIENT_SECRET")
 c.GenericOAuthenticator.token_url = os.environ.get("OAUTH2_TOKEN_URL")
+c.GenericOAuthenticator.oauth_callback_url = os.environ.get("JUPYTERHUB_OATH_CALLBACK_URL")
 c.GenericOAuthenticator.userdata_url = os.environ.get("KEYCLOAK_USERDATA_URL")
 c.GenericOAuthenticator.userdata_params = {'state': 'state'}
 c.GenericOAuthenticator.username_key = 'preferred_username'
@@ -112,3 +113,10 @@ def pre_spawn_hook(spawner):
 
 
 c.DockerSpawner.pre_spawn_hook = pre_spawn_hook
+
+c.Spawner.args = [f'--NotebookApp.allow_origin={"*"}']
+c.JupyterHub.tornado_settings = {
+    'headers': {
+        'Access-Control-Allow-Origin': '*',
+    },
+}
