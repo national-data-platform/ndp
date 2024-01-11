@@ -141,6 +141,9 @@ services:
       - NEXTAUTH_SECRET
       - NEXT_PUBLIC_NDP_PASSWORD
       - NEXT_PUBLIC_CKAN_URL
+      - NEXT_AWESOME_SERVER_URL
+      - NEXT_PUBLIC_CKAN_CATALOG_URL
+      - NEXT_PUBLIC_JUPYTER_HUB_URL
 
   nginx:
     image: nginx:alpine3.18-slim
