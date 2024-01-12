@@ -3,7 +3,7 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret:
+        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
         oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -51,6 +51,15 @@ jupyterhub:
     extraConfig:
       default.py: |
         from kubespawner import KubeSpawner
+        
+        aws_access_key_id = 'admin'
+        aws_secret_access_key = 'sample_key'
+        mlflow_s3_endpoint_url = 'http://minio:9000'
+        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
+        mlflow_admin_username = 'admin'
+        mlflow_admin_password = 'password'
+        mlflow_default_user_password = 'password'
+        aws_bucket_name = 'mlflow'
 
         class MySpawner(KubeSpawner):
           notebook_dir = '/srv/starter_content'
@@ -272,32 +281,24 @@ jupyterhub:
 
           profile_list = [
               {
-                  'display_name': "PGML GPU AMD64",
-                  'slug': 'pgml_cpu_pytorch',
-                  'default': False,
+                  'display_name': "Physics Guided Machine Learning Starter Code",
+                  'default': True,
+                  'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:v3.1_amd64_gpu',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.2',
                   }
               },
-              {
-                  'display_name': "PGML CPU AMD64",
-                  'slug': 'pgml_gpu_pytorch',
-                  'default': True,
-                  'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:v4_cpu',
-                  }
-              }
           ]
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
-        #c.JupyterHub.template_vars = {'announcement_login': 'You can your organization to be added to the list in <a href="https://ucsd-prp.gitlab.io/userdocs/start/contact/">[matrix]</a>. K8s namespace membership doesn\'t grant you access to jupyterhub.'}
         c.MySpawner.environment = {
-            'AWS_ACCESS_KEY_ID': 'admin',
-            'AWS_SECRET_ACCESS_KEY': 'sample_key',
-            'MLFLOW_TRACKING_URI': 'https://ndp-staging.sdsc.edu/mlflow',
-            'MLFLOW_S3_ENDPOINT_URL': 'http://minio:9000',
-            'MLFLOW_TRACKING_PASSWORD': 'password',
-            'AWS_BUCKET_NAME': 'mlflow',
+            'AWS_ACCESS_KEY_ID': aws_access_key_id,
+            'AWS_SECRET_ACCESS_KEY': aws_secret_access_key,
+            'MLFLOW_TRACKING_URI': mlflow_tracking_uri,
+            'MLFLOW_S3_ENDPOINT_URL': mlflow_s3_endpoint_url,
+            'MLFLOW_TRACKING_PASSWORD': mlflow_default_user_password,
+            'AWS_BUCKET_NAME': aws_bucket_name,
+            'GIT_PYTHON_REFRESH': 'quiet',
         }
         # Remove containers once they are stopped
         c.MySpawner.remove = True
@@ -312,19 +313,21 @@ jupyterhub:
         
           # create user inside MLFlow using its admin account
           try:
+            spawner.environment.update({'MLFLOW_USER_CREATED': 'FALSE'})
             logging.info(f'Trying to create new MLFlow user.')
             response = requests.post(
-              f"https://ndp-staging.sdsc.edu/mlflow/api/2.0/mlflow/users/create",
+              f"{mlflow_tracking_uri}/api/2.0/mlflow/users/create",
               json={
                 "username": username,
-                "password": 'password',
+                "password": mlflow_default_user_password,
               },
-              auth=('admin', 'password'),
+              auth=(mlflow_admin_username, mlflow_admin_password),
             )
     
             logging.info(f'{response.status_code}')
             assert response.status_code == 200, response.json()['error_code']
             logging.info(f'MLFlow user creation succeed.')
+            spawner.environment.update({'MLFLOW_USER_CREATED': 'TRUE'})
           except AssertionError as e:
             logging.info(f'MLFlow user creation failed: {str(e)}')
           except requests.exceptions.ConnectionError:

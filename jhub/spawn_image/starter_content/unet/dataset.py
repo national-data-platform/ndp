@@ -27,11 +27,11 @@ class IdealizedGrasslands(data.Dataset):
 
     def __getitem__(self, index):
         link = self.runs_df.loc[index]['link']
-        print(f'Getting run {index} from {link}.')
+        # print(f'Getting run {index} from {link}.')
         run_zarr = zarr.open(link)
         fuel = np.array(run_zarr['fuels-moist'])
         fuel = torch.FloatTensor(fuel[80::10])  #
         y_fuel = fuel[self.mid:(self.mid + self.output_length)]
         x_fuel = fuel[(self.mid - self.input_length):self.mid]
-        print(f'Got run {index}.')
+        # print(f'Got run {index}.')
         return x_fuel.float(), y_fuel.float()
