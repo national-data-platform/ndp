@@ -3,7 +3,7 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
+        client_secret:
         oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -96,8 +96,8 @@ jupyterhub:
             <br/>
             <label for="gputype">GPU type</label>
             <select class="form-control input-lg" name="gputype">
-              <option value="" selected="selected">Any</option>
-              <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
+              <option value="">Any</option>
+              <option value="NVIDIA-GeForce-RTX-2080-Ti" selected="selected">NVIDIA GeForce RTX 2080 Ti</option>
               <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
               <option value="Quadro-M4000">Quadro M4000</option>
               <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>

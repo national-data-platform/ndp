@@ -18,6 +18,8 @@ jupyterhub:
         scope:
           - openid
           - profile
+      Authenticator:
+        auto_login: True
       JupyterHub:
         admin_access: true
         authenticator_class: generic-oauth
@@ -49,6 +51,15 @@ jupyterhub:
     extraConfig:
       default.py: |
         from kubespawner import KubeSpawner
+        
+        aws_access_key_id = 'admin'
+        aws_secret_access_key = 'sample_key'
+        mlflow_s3_endpoint_url = 'http://minio:9000'
+        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
+        mlflow_admin_username = 'admin'
+        mlflow_admin_password = 'password'
+        mlflow_default_user_password = 'password'
+        aws_bucket_name = 'mlflow'
 
         class MySpawner(KubeSpawner):
           notebook_dir = '/srv/starter_content'
@@ -85,14 +96,14 @@ jupyterhub:
             <br/>
             <label for="gputype">GPU type</label>
             <select class="form-control input-lg" name="gputype">
-              <option value="" selected="selected">Any</option>
+              <option value="">Any</option>
+              <option value="NVIDIA-GeForce-RTX-2080-Ti" selected="selected">NVIDIA GeForce RTX 2080 Ti</option>
               <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
               <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
               <option value="Quadro-M4000">Quadro M4000</option>
               <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>
               <option value="NVIDIA-A100-SXM4-80GB">NVIDIA A100 80GB</option>
               <option value="NVIDIA-GeForce-GTX-1080-Ti">NVIDIA GeForce GTX 1080 Ti</option>
-              <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
               <option value="NVIDIA-TITAN-Xp">NVIDIA TITAN Xp</option>
               <option value="Tesla-T4">Tesla T4</option>
               <option value="NVIDIA-GeForce-RTX-3090">NVIDIA GeForce RTX 3090</option>
@@ -270,220 +281,57 @@ jupyterhub:
 
           profile_list = [
               {
-                  'display_name': "PGML No-Deps AMD64",
-                  'slug': 'matlab',
+                  'display_name': "Physics Guided Machine Learning Starter Code",
+                  'default': True,
+                  'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:lite1',
-                  }
-              },
-              {
-                  'display_name': "PGML Full ARM64",
-                  'slug': 'matlab',
-                  'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:v1',
-                  }
-              },
-              {
-                  'display_name': 'WIFIRE Commons Demo',
-                  'default': True
-              },
-              {
-                  'display_name': 'Sage Edge Computing'
-              },
-              {
-                  'display_name': 'Stack Scipy',
-                  'slug': 'scipy',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/scipy',
-                      'cpu': 'jupyter/scipy-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack R',
-                  'slug': 'r',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/r',
-                      'cpu': 'jupyter/r-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack Julia',
-                  'slug': 'julia',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/julia',
-                      'cpu': 'jupyter/julia-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack Tensorflow',
-                  'slug': 'tf',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/tensorflow',
-                      'cpu': 'jupyter/tensorflow-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack Datascience (scipy, Julia, R)',
-                  'slug': 'ds',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/datascience',
-                      'cpu': 'jupyter/datascience-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack Pyspark',
-                  'slug': 'pyspark',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/pyspark',
-                      'cpu': 'jupyter/pyspark-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': 'Stack All Spark',
-                  'slug': 'allspark',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/all-spark',
-                      'cpu': 'jupyter/all-spark-notebook:latest'
-                    }
-                  }
-              },
-              {
-                  'display_name': "NRP Matlab",
-                  'slug': 'matlab',
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/matlab',
-                  }
-              },
-              {
-                  'display_name': "NRP OSGEO",
-                  'slug': 'osgeo',
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/osgeo-notebook',
-                  }
-              },
-              {
-                  'display_name': "B-Data python scipy",
-                  'slug': 'b-data-scipy',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/python/scipy:3.11.5',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/python/scipy:3.11.5'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data Julia",
-                  'slug': 'b-data-julia',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/julia/base:1.9.3',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/julia/base:1.9.3'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data QGIS",
-                  'slug': 'b-data-qgis',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/qgis/base:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/qgis/base:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R",
-                  'slug': 'b-data-r',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/base:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/base:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R geospatial",
-                  'slug': 'b-data-r-geospatial',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/geospatial:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/geospatial:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R qgisprocess",
-                  'slug': 'b-data-r-qgisprocess',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/qgisprocess:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/qgisprocess:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R r-ver",
-                  'slug': 'b-data-r-r-ver',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/r-ver:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/r-ver:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R tidyverse",
-                  'slug': 'b-data-r-tidyverse',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/tidyverse:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/tidyverse:4.3.1'
-                    }
-                  }
-              },
-              {
-                  'display_name': "B-Data R verse",
-                  'slug': 'b-data-r-verse',
-                  'kubespawner_override': {
-                    'image': {
-                      'cuda': 'glcr.b-data.ch/jupyterlab/cuda/r/verse:4.3.1',
-                      'cpu': 'glcr.b-data.ch/jupyterlab/r/verse:4.3.1'
-                    }
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.2',
                   }
               },
           ]
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
-        #c.JupyterHub.template_vars = {'announcement_login': 'You can your organization to be added to the list in <a href="https://ucsd-prp.gitlab.io/userdocs/start/contact/">[matrix]</a>. K8s namespace membership doesn\'t grant you access to jupyterhub.'}
         c.MySpawner.environment = {
-            'AWS_ACCESS_KEY_ID': 'admin',
-            'AWS_SECRET_ACCESS_KEY': 'sample_key',
-            'MLFLOW_TRACKING_URI': 'https://ndp-staging.sdsc.edu/mlflow',
-            'MLFLOW_S3_ENDPOINT_URL': 'http://minio:9000',
-            'MLFLOW_TRACKING_PASSWORD': 'password',
-            'AWS_BUCKET_NAME': 'mlflow',
+            'AWS_ACCESS_KEY_ID': aws_access_key_id,
+            'AWS_SECRET_ACCESS_KEY': aws_secret_access_key,
+            'MLFLOW_TRACKING_URI': mlflow_tracking_uri,
+            'MLFLOW_S3_ENDPOINT_URL': mlflow_s3_endpoint_url,
+            'MLFLOW_TRACKING_PASSWORD': mlflow_default_user_password,
+            'AWS_BUCKET_NAME': aws_bucket_name,
+            'GIT_PYTHON_REFRESH': 'quiet',
         }
         # Remove containers once they are stopped
         c.MySpawner.remove = True
         
         def pre_spawn_hook(spawner):
+          import requests
+          import logging
         
           # make username available for MLflow library
           username = spawner.user.name
           spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
+        
+          # create user inside MLFlow using its admin account
+          try:
+            spawner.environment.update({'MLFLOW_USER_CREATED': 'FALSE'})
+            logging.info(f'Trying to create new MLFlow user.')
+            response = requests.post(
+              f"{mlflow_tracking_uri}/api/2.0/mlflow/users/create",
+              json={
+                "username": username,
+                "password": mlflow_default_user_password,
+              },
+              auth=(mlflow_admin_username, mlflow_admin_password),
+            )
+    
+            logging.info(f'{response.status_code}')
+            assert response.status_code == 200, response.json()['error_code']
+            logging.info(f'MLFlow user creation succeed.')
+            spawner.environment.update({'MLFLOW_USER_CREATED': 'TRUE'})
+          except AssertionError as e:
+            logging.info(f'MLFlow user creation failed: {str(e)}')
+          except requests.exceptions.ConnectionError:
+            logging.info(f'MLFlow Connection error, check that MLFlow service is not down.')
         
         c.MySpawner.pre_spawn_hook = pre_spawn_hook
 
@@ -539,7 +387,7 @@ jupyterhub:
     image:
       name: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/minimal
       tag: latest
-    startTimeout: 600
+    startTimeout: 1200
     cpu:
       limit: 3
       guarantee: 3
