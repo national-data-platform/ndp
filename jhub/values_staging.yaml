@@ -293,7 +293,7 @@ jupyterhub:
 
           profile_list = [
               {
-                  'display_name': "Minimal Starter Jupyter Lab",
+                  'display_name': "Minimal NDP Starter Jupyter Lab",
                   'default': True,
               },
               {
