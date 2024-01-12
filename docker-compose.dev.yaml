@@ -132,6 +132,8 @@ services:
     build:
       context: ndp-frontend
       dockerfile: Dockerfile
+    depends_on:
+      - ckan
     restart: always
     environment:
       - KEYCLOAK_ID
