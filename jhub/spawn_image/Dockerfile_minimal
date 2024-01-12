@@ -1,0 +1,4 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+# Copy starter notebooks, Python files, etc
+COPY --chown=jovyan ./minimal_starter_content/ /srv/starter_content/

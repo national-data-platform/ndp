@@ -3,12 +3,12 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
-        oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        client_secret:
+        oauth_callback_url: https://ndp-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
         userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-staging-jupyterhub.nrp-nautilus.io/
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-jupyterhub.nrp-nautilus.io/
         login_service: keycloak
         username_claim: email
         username_key: preferred_username
@@ -55,7 +55,7 @@ jupyterhub:
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://ndp.sdsc.edu/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
@@ -69,12 +69,11 @@ jupyterhub:
                 font-weight: normal;
             }
             </style>
-            <!--
+
             <p>/home/jovyan is persistent volume, 50GB by default. Make sure you don't fill it up - jupyter won't start next time. You can ask admins to increase the size.<br/>
             The storage is created in West ceph pool by default. You can ask admins to move it to a different region.</p>
             <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
             <p>Contact NDP admins.</p>
-            -->
 
             <label for="region">Region</label>
             <select class="form-control input-lg" name="region">
@@ -99,12 +98,12 @@ jupyterhub:
             <select class="form-control input-lg" name="gputype">
               <option value="">Any</option>
               <option value="NVIDIA-GeForce-RTX-2080-Ti" selected="selected">NVIDIA GeForce RTX 2080 Ti</option>
-              <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
               <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
               <option value="Quadro-M4000">Quadro M4000</option>
               <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>
               <option value="NVIDIA-A100-SXM4-80GB">NVIDIA A100 80GB</option>
               <option value="NVIDIA-GeForce-GTX-1080-Ti">NVIDIA GeForce GTX 1080 Ti</option>
+              <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
               <option value="NVIDIA-TITAN-Xp">NVIDIA TITAN Xp</option>
               <option value="Tesla-T4">Tesla T4</option>
               <option value="NVIDIA-GeForce-RTX-3090">NVIDIA GeForce RTX 3090</option>
@@ -116,9 +115,9 @@ jupyterhub:
               <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
               <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
             </select>
-            <br>
-            <input class="form-check-input" type="checkbox" name="shm">
-            <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
+            <br/>
+            <label for="shm">/dev/shm for pytorch</label> <input class="form-control" type="checkbox" name="shm">
+            <br/>
 
             <div class='form-group' id='kubespawner-profiles-list'>
 
@@ -138,7 +137,6 @@ jupyterhub:
             {% endfor %}
             </div>
             
-            <!--
             <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
 
             <label for="arch">Architecture</label>
@@ -146,17 +144,6 @@ jupyterhub:
               <option value="amd64" selected="selected">amd64</option>
               <option value="arm64">arm64</option>
             </select>
-            -->
-        
-            <p>Currently, only AMD architecture is supported.</p>
-
-            <label for="arch">Architecture</label>
-            <select class="form-control input-lg" name="arch">
-              <option value="amd64" selected="selected">amd64</option>
-            </select>
-            <br>
-            <b>Please stop your server after it is no longer needed, or in case you want to launch different content image</b>
-            <p style="color:green;"><i>In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
             """
 
           def options_from_form(self, formdata):
@@ -294,17 +281,13 @@ jupyterhub:
 
           profile_list = [
               {
-                  'display_name': "Minimal Starter Jupyter Lab",
-                  'default': True,
-              },
-              {
                   'display_name': "Physics Guided Machine Learning Starter Code",
-                  'default': False,
+                  'default': True,
                   'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.3',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.3_prod',
                   }
-              }
+              },
           ]
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
@@ -382,7 +365,13 @@ jupyterhub:
       volumeMounts:
       - mountPath: /home/jovyan
         name: volume-{username}{servername}
-
+#    - name: copy-content
+#      image: busybox
+#      restartPolicy: Always
+#      command: [ "sh", "-c", "cp /srv/starter_content/pgml_eda.ipynb /home/jovyan/pgml_eda.ipynb" ]
+#      volumeMounts:
+#        - mountPath: /home/jovyan
+#          name: volume-{username}{servername}
     storage:
       type: dynamic
       extraLabels: {}
@@ -395,10 +384,9 @@ jupyterhub:
         pvcNameTemplate: claim-{username}-{servername}
         volumeNameTemplate: volume-{username}-{servername}
         storageAccessModes: [ReadWriteOnce]
-
     image:
-      name: segurvich/jhub-spawn
-      tag: minimal_v0.1.4
+      name: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/minimal
+      tag: latest
     startTimeout: 1200
     cpu:
       limit: 3
@@ -411,6 +399,35 @@ jupyterhub:
       guarantees: {}
     cmd: jupyterhub-singleuser
     defaultUrl: "/lab"
+    profileList:
+      - display_name: NDP Stack Minimal
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/minimal
+      - display_name: Stack Minimal + Desktop GUI
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/desktop
+      - display_name: Stack Minimal + Desktop GUI + Relion
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/relion-desktop
+      - display_name: Stack Scipy
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/scipy
+      - display_name: Stack R
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/r
+      - display_name: Stack Tensorflow
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/tensorflow
+      - display_name: Stack Tensorflow + PRP added libs
+      - display_name: Stack Datascience
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/datascience
+      - display_name: Stack Pyspark
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/pyspark
+      - display_name: Stack All Spark
+        kubespawner_override:
+          image_spec: localhost:30081/prp/jupyter-stack/all-spark
 
   scheduling:
     userScheduler:
@@ -428,11 +445,11 @@ jupyterhub:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: haproxy
-    hosts: ["ndp-staging-jupyterhub.nrp-nautilus.io"]
+    hosts: ["ndp-jupyterhub.nrp-nautilus.io"]
     pathSuffix: ''
     tls:
       - hosts:
-        - ndp-staging-jupyterhub.nrp-nautilus.io
+        - ndp-jupyterhub.nrp-nautilus.io
 
   cull:
     enabled: true
