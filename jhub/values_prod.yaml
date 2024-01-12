@@ -55,7 +55,7 @@ jupyterhub:
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://ndp.sdsc.edu/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
