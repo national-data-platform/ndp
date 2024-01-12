@@ -69,11 +69,12 @@ jupyterhub:
                 font-weight: normal;
             }
             </style>
-
+            <!--
             <p>/home/jovyan is persistent volume, 50GB by default. Make sure you don't fill it up - jupyter won't start next time. You can ask admins to increase the size.<br/>
             The storage is created in West ceph pool by default. You can ask admins to move it to a different region.</p>
             <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
             <p>Contact NDP admins.</p>
+            -->
 
             <label for="region">Region</label>
             <select class="form-control input-lg" name="region">
@@ -115,10 +116,9 @@ jupyterhub:
               <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
               <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
             </select>
-            <br/>
-            <label for="shm">/dev/shm for pytorch</label> <input class="form-control" type="checkbox" name="shm">
-            <br/>
-
+            <input class="form-check-input" type="checkbox" name="shm">
+            <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
+            <br>
             <div class='form-group' id='kubespawner-profiles-list'>
 
             <label>Image</label>
@@ -137,6 +137,7 @@ jupyterhub:
             {% endfor %}
             </div>
             
+            <!--
             <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
 
             <label for="arch">Architecture</label>
@@ -144,6 +145,17 @@ jupyterhub:
               <option value="amd64" selected="selected">amd64</option>
               <option value="arm64">arm64</option>
             </select>
+            -->
+        
+            <p>Currently, only AMD architecture is supported.</p>
+
+            <label for="arch">Architecture</label>
+            <select class="form-control input-lg" name="arch">
+              <option value="amd64" selected="selected">amd64</option>
+            </select>
+            <br>
+            <b>Please stop your server after it is no longer needed, or in case you want to launch different content image</b>
+            <p style="color:green;"><i>In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
             """
 
           def options_from_form(self, formdata):
@@ -281,13 +293,17 @@ jupyterhub:
 
           profile_list = [
               {
-                  'display_name': "Physics Guided Machine Learning Starter Code",
+                  'display_name': "Minimal Starter Jupyter Lab",
                   'default': True,
+              },
+              {
+                  'display_name': "Physics Guided Machine Learning Starter Code",
+                  'default': False,
                   'slug': 'pgml',
                   'kubespawner_override': {
                     'image': 'segurvich/jhub-spawn:pgml_v0.1.3',
                   }
-              },
+              }
           ]
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
@@ -365,13 +381,7 @@ jupyterhub:
       volumeMounts:
       - mountPath: /home/jovyan
         name: volume-{username}{servername}
-#    - name: copy-content
-#      image: busybox
-#      restartPolicy: Always
-#      command: [ "sh", "-c", "cp /srv/starter_content/pgml_eda.ipynb /home/jovyan/pgml_eda.ipynb" ]
-#      volumeMounts:
-#        - mountPath: /home/jovyan
-#          name: volume-{username}{servername}
+
     storage:
       type: dynamic
       extraLabels: {}
@@ -384,9 +394,10 @@ jupyterhub:
         pvcNameTemplate: claim-{username}-{servername}
         volumeNameTemplate: volume-{username}-{servername}
         storageAccessModes: [ReadWriteOnce]
+
     image:
-      name: gitlab-registry.nrp-nautilus.io/prp/jupyter-stack/minimal
-      tag: latest
+      name: segurvich/jhub-spawn
+      tag: minimal_v0.1.4
     startTimeout: 1200
     cpu:
       limit: 3
@@ -399,35 +410,6 @@ jupyterhub:
       guarantees: {}
     cmd: jupyterhub-singleuser
     defaultUrl: "/lab"
-    profileList:
-      - display_name: NDP Stack Minimal
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/minimal
-      - display_name: Stack Minimal + Desktop GUI
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/desktop
-      - display_name: Stack Minimal + Desktop GUI + Relion
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/relion-desktop
-      - display_name: Stack Scipy
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/scipy
-      - display_name: Stack R
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/r
-      - display_name: Stack Tensorflow
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/tensorflow
-      - display_name: Stack Tensorflow + PRP added libs
-      - display_name: Stack Datascience
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/datascience
-      - display_name: Stack Pyspark
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/pyspark
-      - display_name: Stack All Spark
-        kubespawner_override:
-          image_spec: localhost:30081/prp/jupyter-stack/all-spark
 
   scheduling:
     userScheduler:

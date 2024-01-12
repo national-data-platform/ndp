@@ -3,7 +3,7 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
+        client_secret:
         oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -116,10 +116,9 @@ jupyterhub:
               <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
               <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
             </select>
-            <br>
             <input class="form-check-input" type="checkbox" name="shm">
             <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
-
+            <br>
             <div class='form-group' id='kubespawner-profiles-list'>
 
             <label>Image</label>
