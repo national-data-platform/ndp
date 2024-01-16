@@ -155,7 +155,7 @@ jupyterhub:
 
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> /data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+            <p><i><b>Note:</b> ./data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
 
           def options_from_form(self, formdata):
@@ -254,7 +254,7 @@ jupyterhub:
             self.volume_mounts = [
               {
                 'name': 'volume-{username}',
-                'mountPath': '/data',
+                'mountPath': '/srv/starter_content/data',
               }
             ]
             self.volumes = [
@@ -377,9 +377,9 @@ jupyterhub:
     initContainers:
     - name: volume-permissions
       image: busybox
-      command: ["sh", "-c", "chmod 777 /data"]
+      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
       volumeMounts:
-      - mountPath: /data
+      - mountPath: /srv/starter_content/data
         name: volume-{username}{servername}
 
     storage:
@@ -388,7 +388,7 @@ jupyterhub:
       extraVolumes: []
       extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /data
+      homeMountPath: /srv/starter_content/data
       dynamic:
         storageClass: rook-ceph-block
         pvcNameTemplate: claim-{username}-{servername}
