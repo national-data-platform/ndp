@@ -1,9 +1,12 @@
+# to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
+# 'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
+#  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
 jupyterhub:
   hub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret:
+        client_secret: 
         oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -69,12 +72,8 @@ jupyterhub:
                 font-weight: normal;
             }
             </style>
-            <!--
-            <p>/home/jovyan is persistent volume, 50GB by default. Make sure you don't fill it up - jupyter won't start next time. You can ask admins to increase the size.<br/>
-            The storage is created in West ceph pool by default. You can ask admins to move it to a different region.</p>
+        
             <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
-            <p>Contact NDP admins.</p>
-            -->
 
             <label for="region">Region</label>
             <select class="form-control input-lg" name="region">
@@ -147,15 +146,16 @@ jupyterhub:
             </select>
             -->
         
-            <p>Currently, only AMD architecture is supported.</p>
+
 
             <label for="arch">Architecture</label>
             <select class="form-control input-lg" name="arch">
               <option value="amd64" selected="selected">amd64</option>
             </select>
-            <br>
-            <b>Please stop your server after it is no longer needed, or in case you want to launch different content image</b>
-            <p style="color:green;"><i>In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
+
+            <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
+            <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
+            <p><i><b>Note:</b> /data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
 
           def options_from_form(self, formdata):
@@ -254,7 +254,7 @@ jupyterhub:
             self.volume_mounts = [
               {
                 'name': 'volume-{username}',
-                'mountPath': '/home/jovyan',
+                'mountPath': '/data',
               }
             ]
             self.volumes = [
@@ -301,7 +301,7 @@ jupyterhub:
                   'default': False,
                   'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.3',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.5_staging',
                   }
               }
           ]
@@ -377,9 +377,9 @@ jupyterhub:
     initContainers:
     - name: volume-permissions
       image: busybox
-      command: ["sh", "-c", "chmod 777 /home/jovyan"]
+      command: ["sh", "-c", "chmod 777 /data"]
       volumeMounts:
-      - mountPath: /home/jovyan
+      - mountPath: /data
         name: volume-{username}{servername}
 
     storage:
@@ -388,7 +388,7 @@ jupyterhub:
       extraVolumes: []
       extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /home/jovyan
+      homeMountPath: /data
       dynamic:
         storageClass: rook-ceph-block
         pvcNameTemplate: claim-{username}-{servername}

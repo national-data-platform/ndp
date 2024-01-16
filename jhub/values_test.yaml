@@ -1,4 +1,4 @@
-# to change environment: ndp-staging-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
+# to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
 # 'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
 jupyterhub:
@@ -7,11 +7,11 @@ jupyterhub:
       GenericOAuthenticator:
         client_id: jhub-local
         client_secret:
-        oauth_callback_url: https://ndp-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
         userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-jupyterhub.nrp-nautilus.io/
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
         login_service: keycloak
         username_claim: email
         username_key: preferred_username
@@ -58,7 +58,7 @@ jupyterhub:
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
@@ -301,7 +301,7 @@ jupyterhub:
                   'default': False,
                   'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.5_prod',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test',
                   }
               }
           ]
@@ -427,11 +427,11 @@ jupyterhub:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: haproxy
-    hosts: ["ndp-jupyterhub.nrp-nautilus.io"]
+    hosts: ["ndp-test-jupyterhub.nrp-nautilus.io"]
     pathSuffix: ''
     tls:
       - hosts:
-        - ndp-jupyterhub.nrp-nautilus.io
+        - ndp-test-jupyterhub.nrp-nautilus.io
 
   cull:
     enabled: true
