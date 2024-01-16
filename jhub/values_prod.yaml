@@ -301,7 +301,7 @@ jupyterhub:
                   'default': False,
                   'slug': 'pgml',
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.5_prod',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.6_prod',
                   }
               }
           ]
