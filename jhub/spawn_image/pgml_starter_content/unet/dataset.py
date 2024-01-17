@@ -26,8 +26,8 @@ class IdealizedGrasslands(data.Dataset):
         return len(self.list_IDs)
 
     def __getitem__(self, index):
-        link = self.runs_df.loc[index]['link']
-        print(f'\rLoading run # {index}', end="")
+        link = self.runs_df.loc[self.list_IDs[index]]['link']
+        print(f'\rLoading run # {self.list_IDs[index]}', end="")
         run_zarr = zarr.open(link)
         fuel = np.array(run_zarr['fuels-moist'])
         fuel = torch.FloatTensor(fuel[80::10])  #
