@@ -3,11 +3,11 @@ COMPOSE_FILE=docker-compose.dev.yaml
 default: build-run
 
 build:
-	docker build ./jhub/spawn_image -t jhub-spawn
+	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn
 	docker compose -f $(COMPOSE_FILE) build
 
 build-run:
-	docker build ./jhub/spawn_image -t jhub-spawn
+	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn
 	docker compose -f $(COMPOSE_FILE) up --build -d
 
 download-ckanext-ndp:
