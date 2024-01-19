@@ -1,6 +1,8 @@
 # to change environment: ndp-staging-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
 # 'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
+# jupyterlab % helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp-staging --values commons-hub/values_staging.yaml
+
 jupyterhub:
   hub:
     config:
