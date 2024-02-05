@@ -1,0 +1,22 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+WORKDIR /srv
+
+USER root
+
+RUN apt-get update && apt-get install -y \
+    git
+
+RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+
+RUN pip install -r /srv/jupyter-notebooks/minimal_starter_content/requirements.txt
+
+RUN mkdir /srv/starter_content/
+
+RUN cp -R /srv/jupyter-notebooks/minimal_starter_content/. /srv/starter_content/
+
+RUN chown -R jovyan /srv/starter_content/
+
+USER jovyan
+
+#

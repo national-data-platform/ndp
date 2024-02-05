@@ -1,0 +1,22 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+WORKDIR /srv
+
+USER root
+
+RUN apt-get update && apt-get install -y \
+    git
+
+RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+
+RUN pip install -r /srv/jupyter-notebooks/sage/requirements.txt
+
+RUN mkdir /srv/starter_content/
+
+RUN cp -R /srv/jupyter-notebooks/sage/. /srv/starter_content/
+
+RUN chown -R jovyan /srv/starter_content/
+
+USER jovyan
+
+# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_sage -t segurvich/jhub-spawn:sage_v0.1.0.0 --platform=linux/amd64 --no-cache
