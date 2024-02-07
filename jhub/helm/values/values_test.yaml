@@ -29,9 +29,6 @@ jupyterhub:
         admin_access: true
         authenticator_class: generic-oauth
         admin_users: ["i3perez@ucsd.edu","segurvich@ucsd.edu"]
-        template_paths:
-        template_vars:
-          'announcement_error': 'some_text'
     service:
       type: ClusterIP
       annotations: {}

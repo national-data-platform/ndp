@@ -1,4 +1,4 @@
-# to change environment: ndp-jupyterhub to ndp-jupyterhub or ndp-jupyterhub
+# to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
 # 'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
 # helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp --values commons-hub/values_prod.yaml
@@ -19,7 +19,8 @@ jupyterhub:
         username_key: preferred_username
         userdata_params:
           state: state
-        allow_all: True
+        allow_all: False
+        allowed_groups: ["jhub_user"]
         scope:
           - openid
           - profile
@@ -53,6 +54,28 @@ jupyterhub:
         memory: 512Mi
     networkPolicy:
       enabled: false
+    initContainers:
+      - name: git-clone-templates
+        image: alpine/git
+        args:
+          - clone
+          - --single-branch
+          - --branch=main
+          - --depth=1
+          - --
+          - https://github.com/national-data-platform/jupyter-templates.git
+          - /etc/jupyterhub/custom
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: custom-templates
+            mountPath: /etc/jupyterhub/custom
+    extraVolumes:
+      - name: custom-templates
+        emptyDir: { }
+    extraVolumeMounts:
+      - name: custom-templates
+        mountPath: /etc/jupyterhub/custom
     extraConfig:
       default.py: |
         from kubespawner import KubeSpawner
@@ -60,7 +83,7 @@ jupyterhub:
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://nationaldataplatform.org/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
@@ -327,6 +350,7 @@ jupyterhub:
                   }
               },
           ]
+        c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
         c.MySpawner.environment = {
