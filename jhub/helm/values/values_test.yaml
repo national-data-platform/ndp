@@ -324,7 +324,7 @@ jupyterhub:
                   'display_name': "Physics Guided Machine Learning Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.7.1',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.7.2',
                   }
               },
               {
