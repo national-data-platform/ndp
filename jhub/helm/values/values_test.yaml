@@ -29,9 +29,6 @@ jupyterhub:
         admin_access: true
         authenticator_class: generic-oauth
         admin_users: ["i3perez@ucsd.edu","segurvich@ucsd.edu"]
-        template_paths:
-        template_vars:
-          'announcement_error': 'some_text'
     service:
       type: ClusterIP
       annotations: {}
@@ -327,7 +324,7 @@ jupyterhub:
                   'display_name': "Physics Guided Machine Learning Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.7.1',
+                    'image': 'segurvich/jhub-spawn:pgml_v0.1.7.2',
                   }
               },
               {
