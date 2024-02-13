@@ -7,3 +7,6 @@
 [submodule "ndp-frontend"]
 	path = ndp-frontend
 	url = git@github.com:national-data-platform/ndp-frontend.git
+[submodule "metadata-query-api"]
+	path = metadata-query-api
+	url = git@github.com:national-data-platform/metadata-query-api.git
