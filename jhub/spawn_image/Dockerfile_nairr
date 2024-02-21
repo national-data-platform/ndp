@@ -1,27 +1,15 @@
-#FROM jupyter/base-notebook:python-3.9.2
-#FROM jupyter/base-notebook:x86_64-lab-4.0.7
-#FROM quay.io/jupyter/base-notebook:latest
-#RUN conda create -n myenv python=3.9 ipykernel --yes
-#RUN conda run -n myenv python -m ipykernel install --user --name myenv --display-name "Python 3.9"
-#RUN echo "conda activate myenv" >> ~/.bashrc
-## RUN source activate myenv
-
-
 FROM quay.io/jupyter/base-notebook:latest
 
 # Create a new conda environment named 'myenv' with Python 3.9
 RUN conda create -n myenv python=3.9 ipykernel --yes
-
 # Initialize the new environment to be found by Jupyter
 RUN /bin/bash -c "source activate myenv && \
     python -m ipykernel install --user --name myenv --display-name 'Python 3.9 (myenv)'"
 SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
 RUN python --version
-# Optional: Set the default environment to 'myenv' when the container starts
 RUN echo "conda activate myenv" >> ~/.bashrc
 
 WORKDIR /srv
-
 USER root
 
 RUN apt-get update && apt-get install -y \
@@ -29,7 +17,6 @@ RUN apt-get update && apt-get install -y \
 
 RUN curl -s https://packagecloud.io/install/repositories/github/git-lfs/script.deb.sh | sudo bash
 RUN sudo apt-get install git-lfs
-# RUN git clone https://github.com/national-data-platform/jupyter-notebooks -b nairr
 
 # M1 support
 ARG TARGETPLATFORM
@@ -39,41 +26,6 @@ RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86
 RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb && sudo dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update && apt-get -y install cuda-toolkit-12-3
 RUN sudo apt-get update
 RUN sudo apt-get -y install cuda-toolkit-12-3
-
-#
-
-
-#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/cuda-ubuntu2204.pin
-#RUN sudo mv cuda-ubuntu2204.pin /etc/apt/preferences.d/cuda-repository-pin-600
-#RUN sudo apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/3bf863cc.pub
-#RUN sudo add-apt-repository "deb https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2204/x86_64/ /"
-#RUN sudo apt-get update
-#RUN sudo apt-get -y install cuda
-#
-#RUN sudo apt-get -y install python3.9 python3-pip
-
-
-#RUN pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1
-
-# RUN pip install -r /srv/jupyter-notebooks/nairr/requirements.txt
-
-#RUN mim install mmcv-full
-#RUN pip install mmsegmentation
-
-#
-#RUN mkdir /srv/starter_content/
-#RUN cd /srv/starter_content/
-#
-#WORKDIR /srv/starter_content/hls-foundation-os
-
-
-#RUN cp -R /srv/jupyter-notebooks/nairr/. /srv/starter_content/
-#RUN cd /srv/starter_content & \
-#    git clone https://github.com/NASA-IMPACT/hls-foundation-os & \
-#    mv /srv/jupyter-notebooks/nairr /srv/starter_content/hls-foundation-os/
-# RUN pip install torch==2.0.0 torchvision==0.15.1 torchaudio==2.0.1
-
-
 
 WORKDIR /srv/starter_content
 RUN git clone https://github.com/NASA-IMPACT/hls-foundation-os
