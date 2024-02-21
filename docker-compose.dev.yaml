@@ -169,25 +169,24 @@ services:
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   neo4j:
-    image: neo4j:${NEO4J_VERSION}
-    restart: unless-stopped
+    image: neo4j:5.16.0
+    restart: always
     ports:
       - "7474:7474"
       - "7687:7687"
+    volumes:
+      - neo4j_data:/data
     environment:
-      - NEO4J_VERSION
-      - NEO4J_USER
-      - NEO4J_PASSWORD
       - NEO4J_AUTH
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:7474"]
       interval: 30s
-      timeout: 10s
+      timeout: 30s
       retries: 5
 
   qdrant:
     image: qdrant/qdrant:v1.6.0
-    restart: unless-stopped
+    restart: always
     ports:
       - "6333:6333"
       - "6334:6334"
@@ -213,3 +212,4 @@ volumes:
   miniodata:
   jupyterhub:
   qdrant_data:
+  neo4j_data:
