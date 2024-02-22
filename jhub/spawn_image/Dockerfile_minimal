@@ -7,6 +7,8 @@ USER root
 RUN apt-get update && apt-get install -y \
     git
 
+RUN chmod a+x /usr/bin/git
+
 RUN git clone https://github.com/national-data-platform/jupyter-notebooks
 
 RUN pip install -r /srv/jupyter-notebooks/minimal_starter_content/requirements.txt
@@ -17,6 +19,7 @@ RUN cp -R /srv/jupyter-notebooks/minimal_starter_content/. /srv/starter_content/
 
 RUN chown -R jovyan /srv/starter_content/
 
-USER jovyan
+# make sudo access without password
+RUN echo 'jovyan ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-#
+USER jovyan
