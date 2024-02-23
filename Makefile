@@ -27,3 +27,7 @@ clean:
 
 dist-clean:
 	docker compose -f $(COMPOSE_FILE) down --volumes
+
+ckan-clean:
+	docker exec ndp-ckan-1 sh -c "yes | ckan -c ckan.ini db clean && ckan -c ckan.ini db init"
+	docker restart ndp-ckan-1
