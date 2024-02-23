@@ -47,6 +47,8 @@ WORKDIR /srv/starter_content
 RUN git clone https://github.com/national-data-platform/jupyter-notebooks -b nairr
 RUN cd jupyter-notebooks/nairr && ls
 RUN mv /srv/starter_content/jupyter-notebooks/nairr/exploration.ipynb  /srv/starter_content/hls-foundation-os/
+RUN mv /srv/starter_content/jupyter-notebooks/nairr/burn_scars.py  /srv/starter_content/hls-foundation-os/configs/
+RUN mv /srv/starter_content/jupyter-notebooks/nairr/pics  /srv/starter_content/hls-foundation-os/
 RUN rm -rf jupyter-notebooks
 
 RUN chown -R jovyan /srv/starter_content/
