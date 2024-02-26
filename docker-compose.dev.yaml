@@ -22,6 +22,8 @@ services:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
       # - ./ckan.ini:/srv/app/ckan.ini
+      - ./logs:/srv/app/logs
+      - ./supervisord/ckan_harvesting.conf:/etc/supervisord.d/ckan_harvesting.conf
     restart: always
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]

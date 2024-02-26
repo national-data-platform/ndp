@@ -3,11 +3,11 @@ COMPOSE_FILE=docker-compose.dev.yaml
 default: build-run
 
 build:
-	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
+# 	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
 	docker compose -f $(COMPOSE_FILE) build
 
 build-run:
-	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
+# 	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
 	docker compose -f $(COMPOSE_FILE) up --build -d
 
 download-ckanext-ndp:
@@ -27,3 +27,7 @@ clean:
 
 dist-clean:
 	docker compose -f $(COMPOSE_FILE) down --volumes
+
+ckan-clean:
+	docker exec ndp-ckan-1 sh -c "yes | ckan -c ckan.ini db clean && ckan -c ckan.ini search-index clear && ckan -c ckan.ini db init"
+	docker restart ndp-ckan-1
