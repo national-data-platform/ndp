@@ -30,4 +30,5 @@ dist-clean:
 
 ckan-clean:
 	docker exec ndp-ckan-1 sh -c "yes | ckan -c ckan.ini db clean && ckan -c ckan.ini search-index clear && ckan -c ckan.ini db init"
-	docker restart ndp-ckan-1
+	docker compose -f docker-compose.dev.yaml down ckan
+	docker compose -f docker-compose.dev.yaml up ckan --build -d
