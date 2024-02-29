@@ -338,21 +338,28 @@ jupyterhub:
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:earthscope_v0.1.0.1',
+                    'image': 'segurvich/jhub-spawn:earthscope_v0.2.0.0',
                   }
               },
-              {
-                  'display_name': "NASA-GOES R Satellite Data Starter Code",
-                  'default': False,
-                  'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:nasa_v0.1.0.0',
-                  }
-              },
+              #{
+              #    'display_name': "NASA-GOES R Satellite Data Starter Code",
+              #    'default': False,
+              #    'kubespawner_override': {
+              #      'image': 'segurvich/jhub-spawn:nasa_v0.1.0.0',
+              #    }
+              #},
               {
                   'display_name': "NAIRR Pilot - NASA Harmonized Landsat Sentinel-2 (HLS) Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.9',
+                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.10',
+                  }
+              },
+              {
+                  'display_name': "LLM",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.3',
                   }
               },
           ]
@@ -427,13 +434,14 @@ jupyterhub:
       blockWithIptables: false
     networkPolicy:
       enabled: false
-    initContainers:
-    - name: volume-permissions
-      image: busybox
-      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
-      volumeMounts:
-      - mountPath: /srv/starter_content/data
-        name: volume-{username}{servername}
+#    commenting out because the volume is not ready when init container starts
+#    initContainers:
+#    - name: volume-permissions
+#      image: busybox
+#      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
+#      volumeMounts:
+#      - mountPath: /srv/starter_content/data
+#        name: volume-{username}{servername}
 
     storage:
       type: dynamic
@@ -446,7 +454,7 @@ jupyterhub:
         storageClass: rook-ceph-block
         pvcNameTemplate: claim-{username}-{servername}
         volumeNameTemplate: volume-{username}-{servername}
-        storageAccessModes: [ReadWriteOnce]
+        storageAccessModes: [ReadWriteMany]
 
     image:
       name: segurvich/jhub-spawn
