@@ -444,10 +444,10 @@ jupyterhub:
       capacity: 100Gi
       homeMountPath: /srv/starter_content/data
       dynamic:
-        storageClass: rook-ceph-block
+        storageClass: seaweedfs-storage-nvme
         pvcNameTemplate: claim-{username}-{servername}
         volumeNameTemplate: volume-{username}-{servername}
-        storageAccessModes: [ReadWriteOnce]
+        storageAccessModes: [ReadWriteMany]
 
     image:
       name: segurvich/jhub-spawn
