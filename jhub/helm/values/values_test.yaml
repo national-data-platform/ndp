@@ -352,11 +352,11 @@ jupyterhub:
                   'display_name': "NAIRR Pilot - NASA Harmonized Landsat Sentinel-2 (HLS) Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.10',
+                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.11',
                   }
               },
               {
-                  'display_name': "LLM",
+                  'display_name': "LLM Demo (CUDA 12.3)",
                   'default': False,
                   'kubespawner_override': {
                     'image': 'segurvich/jhub-spawn:llm_v0.0.0.3',
