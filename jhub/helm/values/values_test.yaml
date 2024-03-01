@@ -331,14 +331,14 @@ jupyterhub:
                   'display_name': "SAGE Pilot Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:sage_v0.1.0.0',
+                    'image': 'segurvich/jhub-spawn:sage_v0.2.0.0',
                   }
               },
               {
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:earthscope_v0.2.0.0',
+                    'image': 'segurvich/jhub-spawn:earthscope_v0.2.3.0',
                   }
               },
               #{
@@ -352,7 +352,7 @@ jupyterhub:
                   'display_name': "NAIRR Pilot - NASA Harmonized Landsat Sentinel-2 (HLS) Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.11',
+                    'image': 'segurvich/jhub-spawn:nair_v0.0.0.12',
                   }
               },
               {

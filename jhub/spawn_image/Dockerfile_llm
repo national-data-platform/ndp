@@ -1,0 +1,32 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+# Create a new conda environment named 'myenv' with Python 3.9
+RUN conda create -n myenv python=3.9 ipykernel --yes
+# Initialize the new environment to be found by Jupyter
+RUN /bin/bash -c "source activate myenv && \
+    python -m ipykernel install --user --name myenv --display-name 'Python 3.9 (myenv)'"
+SHELL ["conda", "run", "-n", "myenv", "/bin/bash", "-c"]
+RUN python --version
+RUN echo "conda activate myenv" >> ~/.bashrc
+
+WORKDIR /srv
+USER root
+
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
+RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb && sudo dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update && apt-get -y install cuda-toolkit-12-3
+RUN sudo apt-get update
+RUN sudo apt-get -y install cuda-toolkit-12-3
+
+RUN apt-get install --yes --no-install-recommends  git wget curl
+RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+RUN pip install wheel
+RUN python get-pip.py
+RUN pip install fschat scipy
+RUN pip install fschat[model_worker,webui] pydantic==1.10.13
+
+WORKDIR /srv/starter_content
+RUN chown -R jovyan /srv/starter_content/
+
+USER jovyan
+
+# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_llm -t segurvich/jhub-spawn:llm_v0.0.0.1 --platform=linux/amd64 --no-cache
