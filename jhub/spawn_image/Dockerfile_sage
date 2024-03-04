@@ -19,4 +19,4 @@ RUN chown -R jovyan /srv/starter_content/
 
 USER jovyan
 
-# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_sage -t segurvich/jhub-spawn:sage_v0.1.0.0 --platform=linux/amd64 --no-cache
+# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_sage -t segurvich/jhub-spawn:sage_v0.2.0.0 --platform=linux/amd64 --no-cache
