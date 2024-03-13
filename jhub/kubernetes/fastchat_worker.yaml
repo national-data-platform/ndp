@@ -1,0 +1,79 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: worker-pvc
+  namespace: ndp-test
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 100Gi
+  storageClassName: seaweedfs-storage-nvme
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker
+  namespace: ndp-test
+  labels:
+    k8s-app: fc-worker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      containers:
+      - name: fc-worker
+        image: segurvich/jhub-spawn:llm_v0.0.0.9
+        command: ["python3"]
+        args: ["-m", "fastchat.serve.model_worker", "--host", "0.0.0.0", "--port", "21002", "--model-names", "gpt-4-turbo,Trendyol-LLM-7b-chat-v0.1,text-embedding-ada-002", "--model-path", "Trendyol/Trendyol-LLM-7b-chat-v0.1"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            cpu: 15
+            memory: 128Gi
+          requests:
+            nvidia.com/gpu: 1
+            cpu: 12
+            memory: 32Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker
+  namespace: ndp-test
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker
