@@ -41,7 +41,7 @@ spec:
       - name: fc-worker
         image: segurvich/jhub-spawn:llm_v0.0.0.9
         command: ["python3"]
-        args: ["-m", "fastchat.serve.model_worker", "--host", "0.0.0.0", "--port", "21002", "--model-names", "gpt-4-turbo,Trendyol-LLM-7b-chat-v0.1,text-embedding-ada-002", "--model-path", "Trendyol/Trendyol-LLM-7b-chat-v0.1", "--controller-address", "http://fc-controller:21001"]
+        args: ["-m", "fastchat.serve.model_worker", "--host", "0.0.0.0", "--port", "21002", "--model-names", "gpt-4-turbo,Trendyol-LLM-7b-chat-v0.1,text-embedding-ada-002", "--model-path", "Trendyol/Trendyol-LLM-7b-chat-v0.1", "--controller-address", "http://fc-controller:21001", "--worker-address", "http://fc-worker:21002"]
         imagePullPolicy: Always
         resources:
           limits:
