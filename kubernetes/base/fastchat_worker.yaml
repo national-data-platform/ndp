@@ -2,7 +2,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fc-worker-1
-  namespace: ndp-test
   labels:
     k8s-app: fc-worker-1
 spec:
@@ -46,16 +45,16 @@ spec:
         - "--worker-address"
         - "http://fc-worker-1:21002"
         - "--num-gpus"
-        - "2"
+        - "4"
         imagePullPolicy: Always
         resources:
           limits:
-            nvidia.com/gpu: 2
-            cpu: 25
+            nvidia.com/gpu: 4
+            cpu: 12
             memory: 64Gi
           requests:
-            nvidia.com/gpu: 2
-            cpu: 25
+            nvidia.com/gpu: 4
+            cpu: 12
             memory: 64Gi
         ports:
           - containerPort: 21002
@@ -74,7 +73,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fc-worker-1
-  namespace: ndp-test
 spec:
   type: ClusterIP
   ports:
@@ -87,7 +85,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: fc-worker-2
-  namespace: ndp-test
   labels:
     k8s-app: fc-worker-2
 spec:
@@ -131,16 +128,16 @@ spec:
         - "--worker-address"
         - "http://fc-worker-2:21002"
         - "--num-gpus"
-        - "2"
+        - "3"
         imagePullPolicy: Always
         resources:
           limits:
-            nvidia.com/gpu: 2
-            cpu: 25
+            nvidia.com/gpu: 3
+            cpu: 12
             memory: 64Gi
           requests:
-            nvidia.com/gpu: 2
-            cpu: 25
+            nvidia.com/gpu: 3
+            cpu: 12
             memory: 64Gi
         ports:
           - containerPort: 21002
@@ -159,7 +156,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: fc-worker-2
-  namespace: ndp-test
 spec:
   type: ClusterIP
   ports:
@@ -167,3 +163,86 @@ spec:
       targetPort: 21002
   selector:
     k8s-app: fc-worker-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-3
+  labels:
+    k8s-app: fc-worker-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-3
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-3
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      containers:
+      - name: fc-worker-3
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args:
+        - "-m"
+        - "fastchat.serve.model_worker"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "21002"
+        - "--model-names"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "--controller-address"
+        - "http://fc-controller:21001"
+        - "--worker-address"
+        - "http://fc-worker-3:21002"
+        - "--num-gpus"
+        - "1"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 1
+            cpu: 12
+            memory: 64Gi
+          requests:
+            nvidia.com/gpu: 1
+            cpu: 12
+            memory: 64Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-3
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker-3

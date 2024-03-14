@@ -2,7 +2,7 @@ apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
   name: worker-pvc
-  namespace: ndp-test
+  namespace: ndp
 spec:
   accessModes:
     - ReadWriteMany
