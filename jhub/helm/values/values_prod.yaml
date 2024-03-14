@@ -360,7 +360,7 @@ jupyterhub:
                   'display_name': "LLM Demo (CUDA 12.3, 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.9',
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.14',
                   }
               },
           ]

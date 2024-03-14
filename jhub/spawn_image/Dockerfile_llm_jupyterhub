@@ -30,11 +30,12 @@ RUN pip install fschat[model_worker,webui] pydantic==1.10.13
 RUN pip install langchain openai chromadb
 
 # copy default content from git into image
-RUN echo
-RUN git clone https://github.com/national-data-platform/jupyter-notebooks
-RUN cp -R /srv/jupyter-notebooks/llm/. /srv/starter_content/
+#RUN echo
+#RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+#RUN cp -R /srv/jupyter-notebooks/llm/. /srv/starter_content/
 
 # set write persmissions
+RUN mkdir /srv/starter_content/
 RUN chown -R jovyan /srv/starter_content/
 RUN chown -R jovyan /home/jovyan/
 
@@ -42,6 +43,19 @@ RUN chown -R jovyan /home/jovyan/
 RUN echo 'jovyan ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 WORKDIR /srv/starter_content
+
+
+# Copy the entrypoint script into the container
+COPY entrypoint.sh /entrypoint.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /entrypoint.sh
+
 USER jovyan
+
+# Set the entrypoint script as the entrypoint
+ENTRYPOINT ["/entrypoint.sh"]
+
+
 
 # docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_llm -t segurvich/jhub-spawn:llm_v0.0.0.4 --platform=linux/amd64 --no-cache

@@ -43,7 +43,7 @@ jupyterhub:
         accessModes:
           - ReadWriteOnce
         storage: 10Gi
-        storageClassName: rook-ceph-block
+        storageClassName: seaweedfs-storage-nvme
     resources:
       limits:
         cpu: "2"
@@ -78,7 +78,6 @@ jupyterhub:
     extraConfig:
       default.py: |
         from kubespawner import KubeSpawner
-        
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
@@ -331,14 +330,14 @@ jupyterhub:
                   'display_name': "SAGE Pilot Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:sage_v0.2.0.0',
+                    'image': 'segurvich/jhub-spawn:sage_v0.2.1.0',
                   }
               },
               {
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:earthscope_v0.2.3.0',
+                    'image': 'segurvich/jhub-spawn:earthscope_v0.2.4.1',
                   }
               },
               #{
@@ -356,10 +355,10 @@ jupyterhub:
                   }
               },
               {
-                  'display_name': "LLM Demo (CUDA 12.3)",
+                  'display_name': "LLM Demo (CUDA 12.3, 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.3',
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.14',
                   }
               },
           ]
