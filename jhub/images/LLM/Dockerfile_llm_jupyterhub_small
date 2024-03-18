@@ -23,11 +23,12 @@ RUN pip install pypdf
 
 # copy default content from git into image
 #RUN echo
-#RUN git clone https://github.com/national-data-platform/jupyter-notebooks
-#RUN cp -R /srv/jupyter-notebooks/llm/. /srv/starter_content/
+RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+RUN cp -R /srv/jupyter-notebooks/llm/. /srv/starter_content/
+RUN rm -rf /srv/jupyter-notebooks
 
 # set write persmissions
-RUN mkdir /srv/starter_content/
+# RUN mkdir /srv/starter_content/
 RUN chown -R jovyan /srv/starter_content/
 RUN chown -R jovyan /home/jovyan/
 
@@ -38,15 +39,15 @@ WORKDIR /srv/starter_content
 
 
 # Copy the entrypoint script into the container
-COPY entrypoint_llm_small.sh /entrypoint_llm_small.sh
+COPY entrypoint_llm.sh /entrypoint_llm.sh
 
 # Make the entrypoint script executable
-RUN chmod +x /entrypoint_llm_small.sh
+RUN chmod +x /entrypoint_llm.sh
 
 USER jovyan
 
 # Set the entrypoint script as the entrypoint
-ENTRYPOINT ["/entrypoint_llm_small.sh"]
+#ENTRYPOINT ["/entrypoint_llm.sh"]
 
 
 

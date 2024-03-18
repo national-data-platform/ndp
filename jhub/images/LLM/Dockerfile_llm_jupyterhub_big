@@ -47,15 +47,15 @@ WORKDIR /srv/starter_content
 
 
 # Copy the entrypoint script into the container
-COPY entrypoint_llm_big.sh /entrypoint_llm_big.sh
+COPY entrypoint_llm.sh /entrypoint_llm.sh
 
 # Make the entrypoint script executable
-RUN chmod +x /entrypoint_llm_big.sh
+RUN chmod +x /entrypoint_llm.sh
 
 USER jovyan
 
 # Set the entrypoint script as the entrypoint
-ENTRYPOINT ["/entrypoint_llm_big.sh"]
+ENTRYPOINT ["/entrypoint_llm.sh"]
 
 
 
