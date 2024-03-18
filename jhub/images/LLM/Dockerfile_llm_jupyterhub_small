@@ -1,0 +1,53 @@
+# the image should be ran with 1GPU, 12 cores, 64 gb, NVIDIA a100-80gb
+
+FROM quay.io/jupyter/base-notebook:latest
+
+WORKDIR /srv
+USER root
+
+# install CUDA
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb
+#RUN wget https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/cuda-keyring_1.1-1_all.deb && sudo dpkg -i cuda-keyring_1.1-1_all.deb && apt-get update && apt-get -y install cuda-toolkit-12-3
+RUN sudo apt-get update
+#RUN sudo apt-get -y install cuda-toolkit-12-3
+
+# install libraries
+RUN apt-get install --yes --no-install-recommends  git wget curl
+#RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py
+#RUN pip install wheel
+#RUN python get-pip.py
+#RUN pip install fschat scipy
+#RUN pip install fschat[model_worker,webui] pydantic==1.10.13
+RUN pip install langchain openai chromadb tiktoken
+RUN pip install pypdf
+
+# copy default content from git into image
+#RUN echo
+#RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+#RUN cp -R /srv/jupyter-notebooks/llm/. /srv/starter_content/
+
+# set write persmissions
+RUN mkdir /srv/starter_content/
+RUN chown -R jovyan /srv/starter_content/
+RUN chown -R jovyan /home/jovyan/
+
+# make sudo access without password
+RUN echo 'jovyan ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+WORKDIR /srv/starter_content
+
+
+# Copy the entrypoint script into the container
+COPY entrypoint_llm_small.sh /entrypoint_llm_small.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /entrypoint_llm_small.sh
+
+USER jovyan
+
+# Set the entrypoint script as the entrypoint
+ENTRYPOINT ["/entrypoint_llm_small.sh"]
+
+
+
+# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_small -t segurvich/jhub-spawn:llm_v0.0.0.4_small --platform=linux/amd64 --no-cache

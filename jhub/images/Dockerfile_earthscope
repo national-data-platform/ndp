@@ -9,14 +9,14 @@ RUN apt-get update && apt-get install -y \
 
 RUN git clone https://github.com/national-data-platform/jupyter-notebooks
 
-RUN pip install -r /srv/jupyter-notebooks/sage/requirements.txt
+RUN pip install -r /srv/jupyter-notebooks/earthscope/requirements.txt
 
 RUN mkdir /srv/starter_content/
 
-RUN cp -R /srv/jupyter-notebooks/sage/. /srv/starter_content/
+RUN cp -R /srv/jupyter-notebooks/earthscope/. /srv/starter_content/
 
 RUN chown -R jovyan /srv/starter_content/
 
 USER jovyan
 
-# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_sage -t segurvich/jhub-spawn:sage_v0.2.0.0 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_earthscope -t segurvich/jhub-spawn:earthscope_v0.2.1.0 --platform=linux/amd64 --no-cache

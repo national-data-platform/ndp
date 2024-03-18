@@ -55,4 +55,4 @@ RUN chown -R jovyan /srv/starter_content/
 
 USER jovyan
 
-# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_nairr -t segurvich/jhub-spawn:nair_v0.0.0.11 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_nairr -t segurvich/jhub-spawn:nair_v0.0.0.11 --platform=linux/amd64 --no-cache

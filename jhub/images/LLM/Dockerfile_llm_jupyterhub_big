@@ -28,6 +28,7 @@ RUN apt-get install --yes --no-install-recommends  git wget curl
 RUN pip install fschat scipy
 RUN pip install fschat[model_worker,webui] pydantic==1.10.13
 RUN pip install langchain openai chromadb
+RUN pip install pypdf
 
 # copy default content from git into image
 #RUN echo
@@ -46,16 +47,16 @@ WORKDIR /srv/starter_content
 
 
 # Copy the entrypoint script into the container
-COPY entrypoint.sh /entrypoint.sh
+COPY entrypoint_llm_big.sh /entrypoint_llm_big.sh
 
 # Make the entrypoint script executable
-RUN chmod +x /entrypoint.sh
+RUN chmod +x /entrypoint_llm_big.sh
 
 USER jovyan
 
 # Set the entrypoint script as the entrypoint
-ENTRYPOINT ["/entrypoint.sh"]
+ENTRYPOINT ["/entrypoint_llm_big.sh"]
 
 
 
-# docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_llm -t segurvich/jhub-spawn:llm_v0.0.0.4 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_big -t segurvich/jhub-spawn:llm_v0.0.0.15_big --platform=linux/amd64 --no-cache
