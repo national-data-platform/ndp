@@ -1,6 +1,6 @@
 ## Fastchat Kubernetes Deployment
 
-Create pvc (not part of the kustomize):
+Create pvc (not part of kustomize):
 ```
 kubectl create -f fastchat_worker_PVC.yaml
 ```

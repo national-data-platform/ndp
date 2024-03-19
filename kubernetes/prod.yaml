@@ -1,0 +1,643 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-api-server
+  namespace: ndp
+spec:
+  ports:
+  - port: 8000
+    targetPort: 8000
+  selector:
+    k8s-app: fc-api-server
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-controller
+  namespace: ndp
+spec:
+  ports:
+  - port: 21001
+    targetPort: 21001
+  selector:
+    k8s-app: fc-controller
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-1
+  namespace: ndp
+spec:
+  ports:
+  - port: 21002
+    targetPort: 21002
+  selector:
+    k8s-app: fc-worker-1
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-2
+  namespace: ndp
+spec:
+  ports:
+  - port: 21002
+    targetPort: 21002
+  selector:
+    k8s-app: fc-worker-2
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-3
+  namespace: ndp
+spec:
+  ports:
+  - port: 21002
+    targetPort: 21002
+  selector:
+    k8s-app: fc-worker-3
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-4
+  namespace: ndp
+spec:
+  ports:
+  - port: 21002
+    targetPort: 21002
+  selector:
+    k8s-app: fc-worker-4
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-5
+  namespace: ndp
+spec:
+  ports:
+  - port: 21002
+    targetPort: 21002
+  selector:
+    k8s-app: fc-worker-5
+  type: ClusterIP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-api-server
+  name: fc-api-server
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-api-server
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-api-server
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: feature.node.kubernetes.io/pci-10de.present
+                operator: NotIn
+                values:
+                - "true"
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - suncave-15
+                - suncave-16
+                - suncave-17
+                - suncave-14
+                - suncave-0
+                - suncave-3
+                - suncave-5
+                - suncave-11
+                - hydra.gi.ucsc.edu
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-bharadia-03.sdsc.optiputer.net
+                - k8s-chase-ci-01.noc.ucsb.edu
+                - k8s-chase-ci-10.calit2.optiputer.net
+                - k8s-chase-ci-04.calit2.optiputer.net
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-gpu-03.sdsc.optiputer.net
+                - k8s-gpu-1.ucsc.edu
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.openai_api_server
+        - --host
+        - 0.0.0.0
+        - --port
+        - "8000"
+        - --controller-address
+        - http://fc-controller:21001
+        command:
+        - python3
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-api-server
+        ports:
+        - containerPort: 8000
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-controller
+  name: fc-controller
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-controller
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-controller
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: feature.node.kubernetes.io/pci-10de.present
+                operator: NotIn
+                values:
+                - "true"
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - suncave-15
+                - suncave-16
+                - suncave-17
+                - suncave-14
+                - suncave-5
+                - suncave-0
+                - suncave-3
+                - suncave-11
+                - hydra.gi.ucsc.edu
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-bharadia-03.sdsc.optiputer.net
+                - k8s-chase-ci-01.noc.ucsb.edu
+                - k8s-chase-ci-10.calit2.optiputer.net
+                - k8s-chase-ci-04.calit2.optiputer.net
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-gpu-03.sdsc.optiputer.net
+                - k8s-gpu-1.ucsc.edu
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.controller
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21001"
+        command:
+        - python3
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-controller
+        ports:
+        - containerPort: 21001
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-worker-1
+  name: fc-worker-1
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-1
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-1
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-RTX-A6000
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - k8s-a6000-01.calit2.optiputer.net
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.model_worker
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21002"
+        - --model-names
+        - eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002
+        - --controller-address
+        - http://fc-controller:21001
+        - --worker-address
+        - http://fc-worker-1:21002
+        - --num-gpus
+        - "2"
+        command:
+        - python3
+        env:
+        - name: HF_HOME
+          value: /data
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-worker-1
+        ports:
+        - containerPort: 21002
+        resources:
+          limits:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /data
+          name: worker-volume
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      volumes:
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: worker-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-worker-2
+  name: fc-worker-2
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-2
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-2
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-RTX-A6000
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - k8s-a6000-01.calit2.optiputer.net
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.model_worker
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21002"
+        - --model-names
+        - eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002
+        - --controller-address
+        - http://fc-controller:21001
+        - --worker-address
+        - http://fc-worker-2:21002
+        - --num-gpus
+        - "1"
+        command:
+        - python3
+        env:
+        - name: HF_HOME
+          value: /data
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-worker-2
+        ports:
+        - containerPort: 21002
+        resources:
+          limits:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /data
+          name: worker-volume
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      volumes:
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: worker-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-worker-3
+  name: fc-worker-3
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-3
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-3
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-RTX-A6000
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - k8s-a6000-01.calit2.optiputer.net
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.model_worker
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21002"
+        - --model-names
+        - eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002
+        - --controller-address
+        - http://fc-controller:21001
+        - --worker-address
+        - http://fc-worker-3:21002
+        - --num-gpus
+        - "1"
+        command:
+        - python3
+        env:
+        - name: HF_HOME
+          value: /data
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-worker-3
+        ports:
+        - containerPort: 21002
+        resources:
+          limits:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /data
+          name: worker-volume
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      volumes:
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: worker-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-worker-4
+  name: fc-worker-4
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-4
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-4
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-RTX-A6000
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - k8s-a6000-01.calit2.optiputer.net
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.model_worker
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21002"
+        - --model-names
+        - eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002
+        - --controller-address
+        - http://fc-controller:21001
+        - --worker-address
+        - http://fc-worker-4:21002
+        - --num-gpus
+        - "1"
+        command:
+        - python3
+        env:
+        - name: HF_HOME
+          value: /data
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-worker-4
+        ports:
+        - containerPort: 21002
+        resources:
+          limits:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /data
+          name: worker-volume
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      volumes:
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: worker-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    k8s-app: fc-worker-5
+  name: fc-worker-5
+  namespace: ndp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-5
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-5
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: nvidia.com/gpu.product
+                operator: In
+                values:
+                - NVIDIA-RTX-A6000
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - k8s-a6000-01.calit2.optiputer.net
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+      containers:
+      - args:
+        - -m
+        - fastchat.serve.model_worker
+        - --host
+        - 0.0.0.0
+        - --port
+        - "21002"
+        - --model-names
+        - eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002
+        - --controller-address
+        - http://fc-controller:21001
+        - --worker-address
+        - http://fc-worker-5:21002
+        - --num-gpus
+        - "1"
+        command:
+        - python3
+        env:
+        - name: HF_HOME
+          value: /data
+        image: segurvich/llm_backend:v0.0.0.1
+        imagePullPolicy: Always
+        name: fc-worker-5
+        ports:
+        - containerPort: 21002
+        resources:
+          limits:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+          requests:
+            cpu: 8
+            memory: 32Gi
+            nvidia.com/gpu: 1
+        volumeMounts:
+        - mountPath: /data
+          name: worker-volume
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+      volumes:
+      - name: worker-volume
+        persistentVolumeClaim:
+          claimName: worker-pvc

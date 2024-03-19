@@ -3,3 +3,8 @@ kind: Kustomization
 namespace: ndp-test
 resources:
 - ../base
+patchesStrategicMerge:
+- exclude-nodes.yaml
+- compute-resources.yaml
+- worker-node-selector.yaml
+- taint.yaml

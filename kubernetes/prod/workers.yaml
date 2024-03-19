@@ -1,0 +1,316 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-2
+  labels:
+    k8s-app: fc-worker-2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-2
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-2
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      containers:
+      - name: fc-worker-2
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args:
+        - "-m"
+        - "fastchat.serve.model_worker"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "21002"
+        - "--model-names"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "--controller-address"
+        - "http://fc-controller:21001"
+        - "--worker-address"
+        - "http://fc-worker-2:21002"
+        - "--num-gpus"
+        - "2"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+          requests:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-2
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker-2
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-3
+  labels:
+    k8s-app: fc-worker-3
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-3
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-3
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      containers:
+      - name: fc-worker-3
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args:
+        - "-m"
+        - "fastchat.serve.model_worker"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "21002"
+        - "--model-names"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "--controller-address"
+        - "http://fc-controller:21001"
+        - "--worker-address"
+        - "http://fc-worker-3:21002"
+        - "--num-gpus"
+        - "2"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+          requests:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-3
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker-3
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-4
+  labels:
+    k8s-app: fc-worker-4
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-4
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-4
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      containers:
+      - name: fc-worker-4
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args:
+        - "-m"
+        - "fastchat.serve.model_worker"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "21002"
+        - "--model-names"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "--controller-address"
+        - "http://fc-controller:21001"
+        - "--worker-address"
+        - "http://fc-worker-4:21002"
+        - "--num-gpus"
+        - "2"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+          requests:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-4
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker-4
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-5
+  labels:
+    k8s-app: fc-worker-5
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-worker-5
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-worker-5
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+              - matchExpressions:
+                  - key: nvidia.com/gpu.product
+                    operator: In
+                    values:
+                      - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
+      containers:
+      - name: fc-worker-5
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args:
+        - "-m"
+        - "fastchat.serve.model_worker"
+        - "--host"
+        - "0.0.0.0"
+        - "--port"
+        - "21002"
+        - "--model-names"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "--controller-address"
+        - "http://fc-controller:21001"
+        - "--worker-address"
+        - "http://fc-worker-5:21002"
+        - "--num-gpus"
+        - "2"
+        imagePullPolicy: Always
+        resources:
+          limits:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+          requests:
+            nvidia.com/gpu: 2
+            cpu: 8
+            memory: 32Gi
+        ports:
+          - containerPort: 21002
+        env:
+          - name: HF_HOME
+            value: "/data"
+        volumeMounts:
+          - mountPath: /data  # Path in the container where the volume should be mounted
+            name: worker-volume
+      volumes:
+        - name: worker-volume
+          persistentVolumeClaim:
+            claimName: worker-pvc  # The name of the PVC you defined
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-worker-5
+spec:
+  type: ClusterIP
+  ports:
+    - port: 21002
+      targetPort: 21002
+  selector:
+    k8s-app: fc-worker-5

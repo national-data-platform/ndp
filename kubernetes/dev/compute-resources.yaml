@@ -1,0 +1,36 @@
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-api-server
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: fc-api-server
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-controller
+spec:
+  replicas: 1
+  template:
+    spec:
+      containers:
+      - name: fc-controller
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi

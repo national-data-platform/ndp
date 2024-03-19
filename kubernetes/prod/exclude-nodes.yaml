@@ -1,0 +1,81 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-api-server
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: feature.node.kubernetes.io/pci-10de.present
+                operator: NotIn
+                values:
+                - "true"
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - suncave-15
+                - suncave-16
+                - suncave-17
+                - suncave-14
+                - suncave-0
+                - suncave-3
+                - suncave-5
+                - suncave-11
+                - hydra.gi.ucsc.edu
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-bharadia-03.sdsc.optiputer.net
+                - k8s-chase-ci-01.noc.ucsb.edu
+                - k8s-chase-ci-10.calit2.optiputer.net
+                - k8s-chase-ci-04.calit2.optiputer.net
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-gpu-03.sdsc.optiputer.net
+                - k8s-gpu-1.ucsc.edu
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-controller
+spec:
+  template:
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: feature.node.kubernetes.io/pci-10de.present
+                operator: NotIn
+                values:
+                - "true"
+              - key: topology.kubernetes.io/region
+                operator: In
+                values:
+                - us-west
+              - key: kubernetes.io/hostname
+                operator: NotIn
+                values:
+                - suncave-15
+                - suncave-16
+                - suncave-17
+                - suncave-14
+                - suncave-5
+                - suncave-0
+                - suncave-3
+                - suncave-11
+                - hydra.gi.ucsc.edu
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-bharadia-03.sdsc.optiputer.net
+                - k8s-chase-ci-01.noc.ucsb.edu
+                - k8s-chase-ci-10.calit2.optiputer.net
+                - k8s-chase-ci-04.calit2.optiputer.net
+                - k8s-bharadia-01.sdsc.optiputer.net
+                - k8s-gpu-03.sdsc.optiputer.net
+                - k8s-gpu-1.ucsc.edu
