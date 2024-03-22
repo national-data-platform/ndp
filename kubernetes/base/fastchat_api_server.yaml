@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-api-server
+  labels:
+    k8s-app: fc-api-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      k8s-app: fc-api-server
+  template:
+    metadata:
+      labels:
+        k8s-app: fc-api-server
+    spec:
+      containers:
+      - name: fc-api-server
+        image: segurvich/llm_backend:v0.0.0.1
+        command: ["python3"]
+        args: ["-m", "fastchat.serve.openai_api_server", "--host", "0.0.0.0", "--port", "8000", "--controller-address", "http://fc-controller:21001"]
+        imagePullPolicy: Always
+        resources:
+          limits:
+            cpu: 2
+            memory: 2Gi
+          requests:
+            cpu: 1
+            memory: 1Gi
+        ports:
+          - containerPort: 8000
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: fc-api-server
+spec:
+  type: ClusterIP
+  ports:
+    - port: 8000
+      targetPort: 8000
+  selector:
+    k8s-app: fc-api-server

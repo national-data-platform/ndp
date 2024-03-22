@@ -1,0 +1,12 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: fc-worker-1
+spec:
+  template:
+    spec:
+      tolerations:
+      - effect: NoSchedule
+        key: nautilus.io/ilkay-tutorial
+        operator: Exists
+---

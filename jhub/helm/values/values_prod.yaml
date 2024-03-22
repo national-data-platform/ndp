@@ -144,21 +144,16 @@ jupyterhub:
             <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
             <br>
             <div class='form-group' id='kubespawner-profiles-list'>
-
-            <label>Image</label>
-            {% for profile in profile_list %}
-            <label for='profile-item-{{ loop.index0 }}' class='form-control input-group'>
-                <div class='col-md-1'>
-                    <input type='radio' name='profile' id='profile-item-{{ loop.index0 }}' value='{{ loop.index0 }}' {% if profile.default %}checked{% endif %} />
-                </div>
-                <div class='col-md-11'>
-                    <strong>{{ profile.display_name }}</strong>
-                    {% if profile.description %}
-                    <p>{{ profile.description }}</p>
-                    {% endif %}
-                </div>
-            </label>
-            {% endfor %}
+            <br>
+            <label for="profile-select">Image</label>
+            <select name="profile" id="profile-select" class="form-control input-lg">
+                {% for profile in profile_list %}
+                <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
+                    {{ profile.display_name }}
+                    {% if profile.description %} - {{ profile.description }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
             </div>
             
             <!--
@@ -180,7 +175,7 @@ jupyterhub:
 
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> ./data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+            <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
 
           def options_from_form(self, formdata):
@@ -279,7 +274,7 @@ jupyterhub:
             self.volume_mounts = [
               {
                 'name': 'volume-sw-{username}',
-                'mountPath': '/srv/starter_content/data',
+                'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
               }
             ]
             self.volumes = [
@@ -357,10 +352,17 @@ jupyterhub:
                   }
               },
               {
-                  'display_name': "LLM Demo (CUDA 12.3, 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
+                  'display_name': "LLM Training (CUDA 12.3, tested with 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.9',
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.15_big',
+                  }
+              },              
+              {
+                  'display_name': "LLM Service Client (Minimal, No CUDA)",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.11_small',
                   }
               },
           ]
@@ -439,9 +441,9 @@ jupyterhub:
 #    initContainers:
 #    - name: volume-permissions
 #      image: busybox
-#      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
+#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_"]
 #      volumeMounts:
-#      - mountPath: /srv/starter_content/data
+#      - mountPath: /srv/starter_content/_User-Persistent-Storage_
 #        name: volume-{username}{servername}
 
     storage:
@@ -450,11 +452,11 @@ jupyterhub:
       extraVolumes: []
       extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /srv/starter_content/data
+      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
       dynamic:
         storageClass: seaweedfs-storage-nvme
-        pvcNameTemplate: claim-sw-{username}-{servername}
-        volumeNameTemplate: volume-sw-{username}-{servername}
+        pvcNameTemplate: claim-sw-{username}
+        volumeNameTemplate: volume-sw-{username}
         storageAccessModes: [ReadWriteMany]
 
     image:
