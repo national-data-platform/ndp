@@ -360,7 +360,7 @@ jupyterhub:
                   'display_name': "LLM Service Client (Minimal, No CUDA)",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.9_small',
+                    'image': 'segurvich/jhub-spawn:llm_v0.0.0.11_small',
                   }
               },
           ]
