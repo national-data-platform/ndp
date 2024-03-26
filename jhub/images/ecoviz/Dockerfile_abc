@@ -1,0 +1,30 @@
+# Use an official Jupyter image as a parent image
+# More info: https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html
+FROM quay.io/jupyter/minimal-notebook:latest
+
+USER root
+
+# Install dependencies
+RUN apt-get update && apt-get install ffmpeg libsm6 libxext6  -y
+RUN pip install opensoundscape
+
+# set write persmissions
+RUN mkdir /srv/starter_content/
+RUN chown -R jovyan /srv/starter_content/
+RUN chown -R jovyan /home/jovyan/
+
+# make sudo access without password
+RUN echo 'jovyan ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+
+WORKDIR /srv/starter_content
+
+# Copy the entrypoint script into the container
+COPY entrypoint_abc.sh /entrypoint_abc.sh
+
+# Make the entrypoint script executable
+RUN chmod +x /entrypoint_abc.sh
+
+USER jovyan
+
+# Set the entrypoint script as the entrypoint
+ENTRYPOINT ["/entrypoint_abc.sh"]
