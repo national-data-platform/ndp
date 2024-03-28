@@ -86,7 +86,6 @@ jupyterhub:
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
         aws_bucket_name = 'mlflow'
-
         class MySpawner(KubeSpawner):
           notebook_dir = '/srv/starter_content'
           profile_form_template = """
@@ -273,6 +272,10 @@ jupyterhub:
               {
                 'name': 'volume-{username}',
                 'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
+              },
+              {
+                'name': 'volume-shared-pvc',
+                'mountPath': '/srv/starter_content/_Shared-Storage_',
               }
             ]
             self.volumes = [
@@ -280,6 +283,12 @@ jupyterhub:
                 'name': 'volume-{username}',
                 'persistentVolumeClaim': {
                   'claimName': 'claim-{username}'
+                }
+              },
+              {
+                'name': 'volume-shared-pvc',
+                'persistentVolumeClaim': {
+                  'claimName': 'shared-pvc'
                 }
               }
             ]
@@ -363,6 +372,33 @@ jupyterhub:
                     'image': 'segurvich/jhub-spawn:llm_v0.0.0.11_small',
                   }
               },
+              {
+                  'display_name': "EcoViz CLIP",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_clip:full_v0.2',
+                  }
+              },
+              {
+                  'display_name': "EcoViz AB Classifier",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_abc_ndp:v0.6',
+                  }
+              },
+              {
+                  'display_name': "Fish Classification",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_fish_cls:full_v0.3',
+                  }
+              },
+        
+        
+        
+        
+        
+        
           ]
         c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
         c.JupyterHub.spawner_class = MySpawner
@@ -410,6 +446,7 @@ jupyterhub:
             logging.info(f'MLFlow Connection error, check that MLFlow service is not down.')
         
         c.MySpawner.pre_spawn_hook = pre_spawn_hook
+        c.MySpawner.http_timeout = 1200
 
   proxy:
     secretToken: 693f72d455485b0a90a27968685e08e006523320e914f07b1f15fc4e8487d6fd
@@ -436,23 +473,33 @@ jupyterhub:
     networkPolicy:
       enabled: false
 #    commenting out because the volume is not ready when init container starts
-#    initContainers:
-#    - name: volume-permissions
-#      image: busybox
-#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_"]
-#      volumeMounts:
-#      - mountPath: /srv/starter_content/_User-Persistent-Storage_
-#        name: volume-{username}{servername}
+    initContainers:
+    - name: volume-permissions
+      image: busybox
+      command: ["sh", "-c", "chmod 777 /srv/starter_content/_Shared-Storage_"]
+      volumeMounts:
+      - mountPath: /srv/starter_content/_Shared-Storage_
+        name: volume-shared-pvc
+    - name: volume-permissions2
+      image: busybox
+      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_" ]
+      volumeMounts:
+        - mountPath: /srv/starter_content/_User-Persistent-Storage_
+          name: volume-{username}
 
     storage:
-      type: dynamic
       extraLabels: {}
-      extraVolumes: []
-      extraVolumeMounts: []
+      extraVolumes:
+        - name: volume-shared-pvc
+          persistentVolumeClaim:
+            claimName: shared-pvc
+      extraVolumeMounts:
+        - name: volume-shared-pvc
+          mountPath: /srv/starter_content/_Shared-Storage_
       capacity: 100Gi
       homeMountPath: /srv/starter_content/_User-Persistent-Storage_
       dynamic:
-        storageClass: seaweedfs-storage-nvme
+        storageClass: rook-cephfs-central
         pvcNameTemplate: claim-{username}
         volumeNameTemplate: volume-{username}
         storageAccessModes: [ReadWriteMany]
