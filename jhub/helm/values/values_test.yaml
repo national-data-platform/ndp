@@ -18,8 +18,8 @@ jupyterhub:
         username_key: preferred_username
         userdata_params:
           state: state
-        allow_all: False
-        allowed_groups: ["jhub_user"]
+        allow_all: True
+#        allowed_groups: ["jhub_user"]
         scope:
           - openid
           - profile
@@ -86,8 +86,18 @@ jupyterhub:
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
         aws_bucket_name = 'mlflow'
-
         class MySpawner(KubeSpawner):
+          #def _options_form_default(self):
+          #  return """
+          #  <input type="hidden" name="url_params" id="url_params" value="">
+          #  <script type="text/javascript">
+          #  document.addEventListener("DOMContentLoaded", function() {
+          #      // Capture URL parameters and set them as the value of the hidden field
+          #      document.getElementById("url_params").value = window.location.search;
+          #  });
+          #  </script>
+          #  """
+        
           notebook_dir = '/srv/starter_content'
           profile_form_template = """
             <style>
@@ -109,7 +119,7 @@ jupyterhub:
 
 
             <label for="gpus">GPUs</label>
-            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="8"/>
+            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="20"/>
             <br/>
             <label for="ram">Cores</label>
             <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
@@ -174,14 +184,39 @@ jupyterhub:
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
             <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+            
+            <input type="hidden" name="url_params" id="url_params" value="">
+            <script type="text/javascript">
+            document.addEventListener("DOMContentLoaded", function() {
+                // Capture URL parameters and set them as the value of the hidden field
+                document.getElementById("url_params").value = window.location.search;
+            });
+            </script>
             """
 
           def options_from_form(self, formdata):
+            # options = super().options_from_form(formdata)
+
+        
+            
             cephfs_pvc_users = {}
             if not self.profile_list or not hasattr(self, '_profile_list'):
                 return formdata
             selected_profile = int(formdata.get('profile', [0])[0])
             options = self._profile_list[selected_profile]
+            print(options)
+        
+            options['url_params'] = str(formdata.get('url_params')[0])
+            self.log.info(options)
+        
+            def get_env(self):
+              env = super().get_env()
+              url_params = self.user_options.get('url_params', '')
+              # if url_params:
+              env['URL_PARAMS'] = url_params
+              return env
+
+
             self.log.info("Applying KubeSpawner override for profile '%s'", options['display_name'])
             kubespawner_override = options.get('kubespawner_override', {})
 
@@ -273,6 +308,10 @@ jupyterhub:
               {
                 'name': 'volume-{username}',
                 'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
+              },
+              {
+                'name': 'volume-shared-pvc',
+                'mountPath': '/srv/starter_content/_Shared-Storage_',
               }
             ]
             self.volumes = [
@@ -280,6 +319,12 @@ jupyterhub:
                 'name': 'volume-{username}',
                 'persistentVolumeClaim': {
                   'claimName': 'claim-{username}'
+                }
+              },
+              {
+                'name': 'volume-shared-pvc',
+                'persistentVolumeClaim': {
+                  'claimName': 'shared-pvc'
                 }
               }
             ]
@@ -363,7 +408,29 @@ jupyterhub:
                     'image': 'segurvich/jhub-spawn:llm_v0.0.0.11_small',
                   }
               },
+              {
+                  'display_name': "EcoViz CLIP",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_clip:full_v0.2',
+                  }
+              },
+              {
+                  'display_name': "EcoViz AB Classifier",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_abc_ndp:v0.8',
+                  }
+              },
+              {
+                  'display_name': "Fish Classification",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'segurvich/ecoviz_fish_cls:full_v0.3',
+                  }
+              },
           ]
+        
         c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
@@ -386,6 +453,8 @@ jupyterhub:
           # make username available for MLflow library
           username = spawner.user.name
           spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
+        
+          spawner.environment.update({'URL_PARAMS': spawner.user_options['url_params']})
         
           # create user inside MLFlow using its admin account
           try:
@@ -410,6 +479,7 @@ jupyterhub:
             logging.info(f'MLFlow Connection error, check that MLFlow service is not down.')
         
         c.MySpawner.pre_spawn_hook = pre_spawn_hook
+        c.MySpawner.http_timeout = 1200
 
   proxy:
     secretToken: 693f72d455485b0a90a27968685e08e006523320e914f07b1f15fc4e8487d6fd
@@ -436,23 +506,33 @@ jupyterhub:
     networkPolicy:
       enabled: false
 #    commenting out because the volume is not ready when init container starts
-#    initContainers:
-#    - name: volume-permissions
-#      image: busybox
-#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_"]
-#      volumeMounts:
-#      - mountPath: /srv/starter_content/_User-Persistent-Storage_
-#        name: volume-{username}{servername}
+    initContainers:
+    - name: volume-permissions
+      image: busybox
+      command: ["sh", "-c", "chmod 777 /srv/starter_content/_Shared-Storage_"]
+      volumeMounts:
+      - mountPath: /srv/starter_content/_Shared-Storage_
+        name: volume-shared-pvc
+    - name: volume-permissions2
+      image: busybox
+      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_" ]
+      volumeMounts:
+        - mountPath: /srv/starter_content/_User-Persistent-Storage_
+          name: volume-{username}
 
     storage:
-      type: dynamic
       extraLabels: {}
-      extraVolumes: []
-      extraVolumeMounts: []
+      extraVolumes:
+        - name: volume-shared-pvc
+          persistentVolumeClaim:
+            claimName: shared-pvc
+      extraVolumeMounts:
+        - name: volume-shared-pvc
+          mountPath: /srv/starter_content/_Shared-Storage_
       capacity: 100Gi
       homeMountPath: /srv/starter_content/_User-Persistent-Storage_
       dynamic:
-        storageClass: seaweedfs-storage-nvme
+        storageClass: rook-cephfs-central
         pvcNameTemplate: claim-{username}
         volumeNameTemplate: volume-{username}
         storageAccessModes: [ReadWriteMany]
