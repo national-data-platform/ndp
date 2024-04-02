@@ -7,7 +7,7 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret:
+        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
         oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -194,6 +194,32 @@ jupyterhub:
         
         
             """
+          #def get_pod_manifest(self):
+          #    # Generate the default pod manifest
+          #    pod_manifest = super().get_pod_manifest()
+          #
+          #    # Assume there's already an initContainers section in the manifest; if not, you'll need to create it
+          #    # Add/modify the environment for the init container
+          #    for init_container in pod_manifest['spec']['initContainers']:
+          #        if init_container['name'] == 'dataset-download':
+          #
+          #            # Ensure there's an env key
+          #            if 'env' not in init_container:
+          #                init_container['env'] = []
+          #
+          #            # Add the DATASET_ID environment variable
+          #            init_container['env'].append({
+          #                'name': 'DATASET_ID',
+          #                'value': self.get_env().get('DATASET_ID', '')
+          #            })
+          #
+          #    return pod_manifest
+        
+          def get_env(self):
+            env = super().get_env()
+            dataset_id = self.user_options.get('dataset_id', '')
+            env['DATASET_ID'] = dataset_id
+            return env
 
           def options_from_form(self, formdata):
             cephfs_pvc_users = {}
@@ -205,11 +231,11 @@ jupyterhub:
             # take care of DATASET_ID
             options['dataset_id'] = str(formdata.get('dataset_id', [''])[0])
             self.log.info(options)
-            def get_env(self):
-              env = super().get_env()
-              dataset_id = self.user_options.get('dataset_id', '')
-              env['DATASET_ID'] = dataset_id
-              return env
+            #def get_env(self):
+            #  env = super().get_env()
+            #  dataset_id = self.user_options.get('dataset_id', '')
+            #  env['DATASET_ID'] = dataset_id
+            #  return env
 
 
             self.log.info("Applying KubeSpawner override for profile '%s'", options['display_name'])
@@ -514,6 +540,14 @@ jupyterhub:
       volumeMounts:
         - mountPath: /srv/starter_content/_User-Persistent-Storage_
           name: volume-{username}
+#    - name: dataset-download
+#      image: busybox
+#      env:
+#        - name: DATASET_ID
+#          value: "uniform-ensemble"
+#      volumeMounts:
+#        - name: dataset-data
+#          mountPath: /srv/starter_content/dataset  # The path where files will be downloaded
 
     storage:
       extraLabels: {}
@@ -534,7 +568,8 @@ jupyterhub:
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
-      tag: minimal_v0.1.8
+#      tag: minimal_v0.1.8
+      tag: custom_v0.5
     startTimeout: 1200
     cpu:
       limit: 3
