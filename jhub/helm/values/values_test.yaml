@@ -7,7 +7,7 @@ jupyterhub:
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret: M5AGz0vvRkAZsg0Y2DVng62SwEPGlbze
+        client_secret:
         oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
@@ -454,7 +454,7 @@ jupyterhub:
         
         c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
         c.JupyterHub.spawner_class = MySpawner
-        c.JupyterHub.allow_named_servers = True
+        c.JupyterHub.allow_named_servers = False
         c.MySpawner.environment = {
             'AWS_ACCESS_KEY_ID': aws_access_key_id,
             'AWS_SECRET_ACCESS_KEY': aws_secret_access_key,
