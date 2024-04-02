@@ -78,6 +78,8 @@ jupyterhub:
     extraConfig:
       default.py: |
         from kubespawner import KubeSpawner
+        from urllib.parse import parse_qs
+        
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
@@ -87,16 +89,6 @@ jupyterhub:
         mlflow_default_user_password = 'password'
         aws_bucket_name = 'mlflow'
         class MySpawner(KubeSpawner):
-          #def _options_form_default(self):
-          #  return """
-          #  <input type="hidden" name="url_params" id="url_params" value="">
-          #  <script type="text/javascript">
-          #  document.addEventListener("DOMContentLoaded", function() {
-          #      // Capture URL parameters and set them as the value of the hidden field
-          #      document.getElementById("url_params").value = window.location.search;
-          #  });
-          #  </script>
-          #  """
         
           notebook_dir = '/srv/starter_content'
           profile_form_template = """
@@ -184,36 +176,39 @@ jupyterhub:
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
             <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
-            
-            <input type="hidden" name="url_params" id="url_params" value="">
+          
+            <label for="dataset_id">Dataset:</label>
+            <input name="dataset_id" id="dataset_id" value="">
             <script type="text/javascript">
             document.addEventListener("DOMContentLoaded", function() {
-                // Capture URL parameters and set them as the value of the hidden field
-                document.getElementById("url_params").value = window.location.search;
+            // Parse the URL query parameters
+            var queryParams = new URLSearchParams(window.location.search);
+            
+            // Get the 'dataset_id' parameter from the URL
+            var datasetId = queryParams.get('dataset_id');
+            
+            // Set the 'dataset_id' hidden input field's value
+            document.getElementById("dataset_id").value = datasetId || '';
             });
             </script>
+        
+        
             """
 
           def options_from_form(self, formdata):
-            # options = super().options_from_form(formdata)
-
-        
-            
             cephfs_pvc_users = {}
             if not self.profile_list or not hasattr(self, '_profile_list'):
                 return formdata
             selected_profile = int(formdata.get('profile', [0])[0])
             options = self._profile_list[selected_profile]
-            print(options)
-        
-            options['url_params'] = str(formdata.get('url_params')[0])
+          
+            # take care of DATASET_ID
+            options['dataset_id'] = str(formdata.get('dataset_id', [''])[0])
             self.log.info(options)
-        
             def get_env(self):
               env = super().get_env()
-              url_params = self.user_options.get('url_params', '')
-              # if url_params:
-              env['URL_PARAMS'] = url_params
+              dataset_id = self.user_options.get('dataset_id', '')
+              env['DATASET_ID'] = dataset_id
               return env
 
 
@@ -454,7 +449,7 @@ jupyterhub:
           username = spawner.user.name
           spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
         
-          spawner.environment.update({'URL_PARAMS': spawner.user_options['url_params']})
+          spawner.environment.update({'DATASET_ID': spawner.user_options['dataset_id']})
         
           # create user inside MLFlow using its admin account
           try:
@@ -538,7 +533,7 @@ jupyterhub:
         storageAccessModes: [ReadWriteMany]
 
     image:
-      name: segurvich/jhub-spawn
+      name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
       tag: minimal_v0.1.8
     startTimeout: 1200
     cpu:
