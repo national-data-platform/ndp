@@ -1,0 +1,23 @@
+FROM quay.io/jupyter/base-notebook:latest
+
+WORKDIR /srv
+
+USER root
+
+RUN apt-get update && apt-get install -y \
+    git
+RUN echo
+RUN git clone https://github.com/national-data-platform/jupyter-notebooks
+
+RUN pip install -r /srv/jupyter-notebooks/NASA_ORIGIN/requests.txt
+
+RUN mkdir /srv/starter_content/
+
+RUN cp -R /srv/jupyter-notebooks/NASA_ORIGIN/. /srv/starter_content/
+
+RUN chown -R jovyan /srv/starter_content/
+
+USER jovyan
+
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_nasa_origin -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:noaa_goes_v0.0.0.2 --platform=linux/amd64 --no-cache
+# docker push gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:noaa_goes_v0.0.0.2
