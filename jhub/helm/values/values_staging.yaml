@@ -443,7 +443,7 @@ jupyterhub:
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
-      tag: minimal_v0.1.4
+      tag: custom_v0.6
     startTimeout: 1200
     cpu:
       limit: 3
