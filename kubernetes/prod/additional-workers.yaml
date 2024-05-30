@@ -26,7 +26,7 @@ spec:
                       - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
       containers:
       - name: fc-worker-2
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args:
         - "-m"
@@ -105,7 +105,7 @@ spec:
                       - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
       containers:
       - name: fc-worker-3
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args:
         - "-m"
@@ -184,7 +184,7 @@ spec:
                       - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
       containers:
       - name: fc-worker-4
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args:
         - "-m"
@@ -263,7 +263,7 @@ spec:
                       - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
       containers:
       - name: fc-worker-5
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args:
         - "-m"

@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
       - name: fc-controller
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args: ["-m", "fastchat.serve.controller", "--host", "0.0.0.0", "--port", "21001"]
         imagePullPolicy: Always

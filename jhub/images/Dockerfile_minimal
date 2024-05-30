@@ -22,4 +22,8 @@ RUN chown -R jovyan /srv/starter_content/
 # make sudo access without password
 RUN echo 'jovyan ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
+RUN chown -R jovyan /home/jovyan/
+
 USER jovyan
+
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_minimal -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:custom_v0.6 --platform=linux/amd64 --no-cache

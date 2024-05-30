@@ -1,5 +1,5 @@
 # to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
-# 'image': 'segurvich/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
+# 'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
 # helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp-staging --values commons-hub/values_staging.yaml
 
@@ -325,28 +325,28 @@ jupyterhub:
                   'display_name': "Physics Guided Machine Learning Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:pgml_v0.1.7.2',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.7.2',
                   }
               },
               {
                   'display_name': "SAGE Pilot Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:sage_v0.1.0.0',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:sage_v0.1.0.0',
                   }
               },
               {
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:earthscope_v0.1.0.1',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:earthscope_v0.1.0.1',
                   }
               },
               {
                   'display_name': "NASA-GOES R Satellite Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'segurvich/jhub-spawn:nasa_v0.1.0.0',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nasa_v0.1.0.0',
                   }
               },
           ]
@@ -442,7 +442,7 @@ jupyterhub:
         storageAccessModes: [ReadWriteOnce]
 
     image:
-      name: segurvich/jhub-spawn
+      name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
       tag: minimal_v0.1.4
     startTimeout: 1200
     cpu:

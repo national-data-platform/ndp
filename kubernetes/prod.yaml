@@ -151,7 +151,7 @@ spec:
         - http://fc-controller:21001
         command:
         - python3
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-api-server
         ports:
@@ -224,7 +224,7 @@ spec:
         - "21001"
         command:
         - python3
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-controller
         ports:
@@ -292,7 +292,7 @@ spec:
         env:
         - name: HF_HOME
           value: /data
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-worker-1
         ports:
@@ -373,7 +373,7 @@ spec:
         env:
         - name: HF_HOME
           value: /data
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-worker-2
         ports:
@@ -454,7 +454,7 @@ spec:
         env:
         - name: HF_HOME
           value: /data
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-worker-3
         ports:
@@ -535,7 +535,7 @@ spec:
         env:
         - name: HF_HOME
           value: /data
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-worker-4
         ports:
@@ -616,7 +616,7 @@ spec:
         env:
         - name: HF_HOME
           value: /data
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         imagePullPolicy: Always
         name: fc-worker-5
         ports:
