@@ -422,20 +422,20 @@ jupyterhub:
                     'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nair_v0.0.0.12',
                   }
               },
-              {
-                  'display_name': "LLM Training (CUDA 12.3, tested with 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
-                  'default': False,
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.15_big',
-                  }
-              },              
-              {
-                  'display_name': "LLM Service Client (Minimal, No CUDA)",
-                  'default': False,
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.11_small',
-                  }
-              },
+              #{
+              #    'display_name': "LLM Training (CUDA 12.3, tested with 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
+              #    'default': False,
+              #    'kubespawner_override': {
+              #      'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.15_big',
+              #    }
+              #},              
+              #{
+              #    'display_name': "LLM Service Client (Minimal, No CUDA)",
+              #    'default': False,
+              #    'kubespawner_override': {
+              #      'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.11_small',
+              #    }
+              #},
               {
                   'display_name': "TLS Fuel-Size Segmentation 2023",
                   'default': False,
