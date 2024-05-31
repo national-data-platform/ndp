@@ -1,0 +1,203 @@
+# to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
+# 'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
+#  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
+# helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp-test --values commons-hub/values_test.yaml
+jupyterhub:
+  hub:
+    existingSecret: jupyterhub-secret
+
+    config:
+      GenericOAuthenticator:
+        client_id: jhub-local
+        oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
+        token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
+        userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
+
+        login_service: keycloak
+        username_claim: email
+        username_key: preferred_username
+        userdata_params:
+          state: state
+        allow_all: False
+        allowed_groups: ["jhub_user"]
+#        allowed_idps:
+#          urn:mace:incommon:ucsd.edu: #replace with your EntityID
+#            allowed_domains:
+#              - ucsd.edu
+#            username_derivation:
+#              username_claim: “email”
+        scope:
+          - openid
+          - profile
+      Authenticator:
+        auto_login: True
+        enable_auth_state: True
+      JupyterHub:
+        admin_access: true
+        authenticator_class: generic-oauth
+        admin_users: ["i3perez@ucsd.edu","segurvich1@ucsd.edu"]
+    service:
+      type: ClusterIP
+      annotations: {}
+      ports:
+        nodePort:
+      loadBalancerIP:
+    deploymentStrategy:
+      type: Recreate
+    db:
+      type: sqlite-pvc
+      pvc:
+        accessModes:
+          - ReadWriteOnce
+        storage: 10Gi
+        storageClassName: rook-ceph-block-central
+    resources:
+      limits:
+        cpu: "2"
+        memory: 1Gi
+      requests:
+        cpu: 100m
+        memory: 512Mi
+    networkPolicy:
+      enabled: false
+    initContainers:
+      - name: git-clone-templates
+        image: alpine/git
+        args:
+          - clone
+          - --single-branch
+          - --branch=main
+          - --depth=1
+          - --
+          - https://github.com/national-data-platform/jupyter-templates.git
+          - /etc/jupyterhub/custom
+        securityContext:
+          runAsUser: 0
+        volumeMounts:
+          - name: custom-templates
+            mountPath: /etc/jupyterhub/custom
+    extraVolumes:
+      - name: custom-templates
+        emptyDir: { }
+    extraVolumeMounts:
+      - name: custom-templates
+        mountPath: /etc/jupyterhub/custom
+    extraConfig:
+
+      default.py: |
+        import os
+        exec(open(os.path.join("/usr/local/etc/jupyterhub/config/spawner.py")).read())
+
+  proxy:
+    secretToken: 693f72d455485b0a90a27968685e08e006523320e914f07b1f15fc4e8487d6fd
+    service:
+      type: ClusterIP
+    chp:
+      resources:
+        limits:
+          cpu: "2"
+          memory: 1Gi
+        requests:
+          cpu: 200m
+          memory: 512Mi
+
+  singleuser:
+    uid: 1000
+    fsGid: 100
+    allowPrivilegeEscalation: true
+    extraPodConfig:
+      securityContext:
+          fsGroupChangePolicy: "OnRootMismatch"
+    cloudMetadata:
+      blockWithIptables: false
+    networkPolicy:
+      enabled: false
+#    commenting out because the volume is not ready when init container starts
+    initContainers:
+    - name: volume-permissions
+      image: busybox
+      command: ["sh", "-c", "chmod 777 /srv/starter_content/_Shared-Storage_"]
+      volumeMounts:
+      - mountPath: /srv/starter_content/_Shared-Storage_
+        name: volume-shared-pvc
+    - name: volume-permissions2
+      image: busybox
+      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_" ]
+      volumeMounts:
+        - mountPath: /srv/starter_content/_User-Persistent-Storage_
+          name: volume-{username}
+#    - name: dataset-download
+#      image: busybox
+#      env:
+#        - name: DATASET_ID
+#          value: "uniform-ensemble"
+#      volumeMounts:
+#        - name: dataset-data
+#          mountPath: /srv/starter_content/dataset  # The path where files will be downloaded
+
+    storage:
+      extraLabels: {}
+      extraVolumes:
+        - name: volume-shared-pvc
+          persistentVolumeClaim:
+            claimName: shared-pvc
+      extraVolumeMounts:
+        - name: volume-shared-pvc
+          mountPath: /srv/starter_content/_Shared-Storage_
+      capacity: 100Gi
+      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
+      dynamic:
+        storageClass: rook-cephfs-central
+        pvcNameTemplate: claim-{username}
+        volumeNameTemplate: volume-{username}
+        storageAccessModes: [ReadWriteMany]
+
+    image:
+      name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
+#      tag: custom_v0.6
+      tag: custom_v0.6
+    startTimeout: 1200
+    cpu:
+      limit: 3
+      guarantee: 3
+    memory:
+      limit: 32G
+      guarantee: 32G
+    extraResource:
+      limits: {}
+      guarantees: {}
+    cmd: jupyterhub-singleuser
+    defaultUrl: "/lab"
+
+  scheduling:
+    userScheduler:
+      enabled: false
+    userPlaceholder:
+      enabled: false
+  # prePuller relates to the hook|continuous-image-puller DaemonsSets
+  prePuller:
+    hook:
+      enabled: false
+    continuous:
+      enabled: false
+
+  ingress:
+    enabled: true
+    annotations:
+      kubernetes.io/ingress.class: haproxy
+    hosts: ["ndp-test-jupyterhub.nrp-nautilus.io"]
+    pathSuffix: ''
+    tls:
+      - hosts:
+        - ndp-test-jupyterhub.nrp-nautilus.io
+
+  cull:
+    enabled: true
+    users: false
+    removeNamedServers: false
+    timeout: 3600
+    every: 600
+    concurrency: 10
+    maxAge: 0
