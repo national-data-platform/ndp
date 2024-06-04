@@ -25,7 +25,7 @@ spec:
                       - NVIDIA-A100-SXM4-80GB  # Your desired GPU type
       containers:
       - name: fc-worker-1
-        image: segurvich/llm_backend:v0.0.0.1
+        image: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1
         command: ["python3"]
         args:
         - "-m"

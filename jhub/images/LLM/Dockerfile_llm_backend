@@ -31,4 +31,4 @@ RUN pip install fschat scipy
 RUN pip install fschat[model_worker,webui] pydantic==1.10.13
 RUN pip install langchain openai chromadb
 
-# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_backend -t segurvich/llm_backend:v0.0.0.1 --platform=linux/amd64
+# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_backend -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/llm_backend:v0.0.0.1 --platform=linux/amd64

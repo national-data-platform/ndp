@@ -59,4 +59,4 @@ ENTRYPOINT ["/entrypoint_llm.sh"]
 
 
 
-# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_big -t segurvich/jhub-spawn:llm_v0.0.0.15_big --platform=linux/amd64 --no-cache
+# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_big -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.15_big --platform=linux/amd64 --no-cache

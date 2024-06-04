@@ -19,4 +19,4 @@ RUN chown -R jovyan /srv/starter_content/
 
 USER jovyan
 
-# docker build ./jhub/images -f ./jhub/images/Dockerfile_nasa -t segurvich/jhub-spawn:nasa_v0.1.0.0 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_nasa -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nasa_v0.1.0.0 --platform=linux/amd64 --no-cache

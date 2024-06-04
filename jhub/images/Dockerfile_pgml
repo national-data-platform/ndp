@@ -23,4 +23,4 @@ RUN chown -R jovyan /srv/starter_content/
 
 USER jovyan
 
-# docker build ./jhub/images -f ./jhub/images/Dockerfile_pgml -t segurvich/jhub-spawn:pgml_v0.1.7.1 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images -f ./jhub/images/Dockerfile_pgml -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.7.1 --platform=linux/amd64 --no-cache

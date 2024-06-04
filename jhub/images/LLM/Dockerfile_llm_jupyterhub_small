@@ -51,4 +51,4 @@ USER jovyan
 
 
 
-# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_small -t segurvich/jhub-spawn:llm_v0.0.0.4_small --platform=linux/amd64 --no-cache
+# docker build ./jhub/images/LLM -f ./jhub/images/LLM/Dockerfile_llm_jupyterhub_small -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.4_small --platform=linux/amd64 --no-cache
