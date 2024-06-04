@@ -5,7 +5,6 @@
 jupyterhub:
   hub:
     existingSecret: jupyterhub-secret
-
     config:
       GenericOAuthenticator:
         client_id: jhub-local
@@ -22,12 +21,6 @@ jupyterhub:
           state: state
         allow_all: False
         allowed_groups: ["jhub_user"]
-#        allowed_idps:
-#          urn:mace:incommon:ucsd.edu: #replace with your EntityID
-#            allowed_domains:
-#              - ucsd.edu
-#            username_derivation:
-#              username_claim: “email”
         scope:
           - openid
           - profile
@@ -37,7 +30,7 @@ jupyterhub:
       JupyterHub:
         admin_access: true
         authenticator_class: generic-oauth
-        admin_users: ["i3perez@ucsd.edu","segurvich1@ucsd.edu"]
+        admin_users: ["i3perez@ucsd.edu","segurvich@ucsd.edu"]
     service:
       type: ClusterIP
       annotations: {}
@@ -156,7 +149,6 @@ jupyterhub:
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
-#      tag: custom_v0.6
       tag: custom_v0.6
     startTimeout: 1200
     cpu:
