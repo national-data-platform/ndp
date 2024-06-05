@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: haproxy
+  name: test-ingress
+spec:
+  rules:
+  - host: fake-api.nrp-nautilus.io
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-svc
+            port:
+              number: 8080
+  tls:
+  - hosts:
+    - fake-api.nrp-nautilus.io
