@@ -364,6 +364,13 @@ class MySpawner(KubeSpawner):
         #         'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:minimal_ext_test_v0.0.0.3',
         #     }
         # },
+        {
+            'display_name': "JupyterLab Dataset Download Test",
+            'default': False,
+            'kubespawner_override': {
+                'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.2',
+            }
+        },
     ]
 
 
@@ -407,6 +414,9 @@ def pre_spawn_hook(spawner):
     # make username available for MLflow library
     username = spawner.user.name
     spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
+
+    # ToDo: hardcoded
+    spawner.environment.update({'DATASET_ID': 'uniform-ensemble'})
 
     # for getting dataset_id from url params
     # spawner.environment.update({'DATASET_ID': spawner.user_options['dataset_id']})
