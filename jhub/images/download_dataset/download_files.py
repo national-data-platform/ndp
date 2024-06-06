@@ -75,24 +75,21 @@ for dataset_id in dataset_ids:
                         zip_ref.extract(member, folder_path)
                         print(f"Extracted {member_path} successfully.")
 
-            # install requirements.txt packages
+    # install requirements.txt packages
 
-            # Construct the full file path for requirements.txt
-            requirements_path = os.path.join(folder_path, 'requirements.txt')
+    # Construct the full file path for requirements.txt
+    requirements_path = os.path.join(folder_path, 'requirements.txt')
 
-            # Check if requirements.txt exists
-            if os.path.isfile(requirements_path):
-                print(f"Found requirements.txt at {requirements_path}. Installing libraries...")
-                # Run pip install command
-                result = subprocess.run(['pip', 'install', '-r', requirements_path], capture_output=True, text=True)
-                if result.returncode == 0:
-                    print("Libraries installed successfully.")
-                else:
-                    print("An error occurred while installing libraries.")
-                    print(result.stdout)
-                    print(result.stderr)
-            else:
-                print("No requirements.txt found in the directory.")
-
-    if not found_zip:
-        print("No ZIP files found in the directory.")
+    # Check if requirements.txt exists
+    if os.path.isfile(requirements_path):
+        print(f"Found requirements.txt at {requirements_path}. Installing libraries...")
+        # Run pip install command
+        result = subprocess.run(['pip', 'install', '-r', requirements_path], capture_output=True, text=True)
+        if result.returncode == 0:
+            print("Libraries installed successfully.")
+        else:
+            print("An error occurred while installing libraries.")
+            print(result.stdout)
+            print(result.stderr)
+    else:
+        print("No requirements.txt found in the directory.")

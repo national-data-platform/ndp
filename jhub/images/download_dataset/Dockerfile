@@ -26,9 +26,12 @@ COPY entrypoint.sh /entrypoint.sh
 # Make the entrypoint script executable
 RUN chmod +x /entrypoint.sh
 
+# install git extension
+RUN pip install --upgrade jupyterlab jupyterlab-git
+
 USER jovyan
 
 # Set the entrypoint script as the entrypoint
 ENTRYPOINT ["/entrypoint.sh"]
 
-# docker build ./jhub/images/download_dataset -f ./jhub/images/download_dataset/Dockerfile -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.1 --platform=linux/amd64 --no-cache
+# docker build ./jhub/images/download_dataset -f ./jhub/images/download_dataset/Dockerfile -t gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.5 --platform=linux/amd64 --no-cache

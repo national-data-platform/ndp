@@ -10,7 +10,8 @@ spec:
     image: gitlab-registry.nrp-nautilus.io/segurvich/test/fake_api_0.0.3
     env:
       - name: DATASETS
-        value: "uniform-ensemble,st-mary-large-ensemble"
+#        value: "uniform-ensemble,st-mary-large-ensemble"
+        value: "jupyterhub-testing-dataset"
     resources:
       limits:
         memory: 200Mi

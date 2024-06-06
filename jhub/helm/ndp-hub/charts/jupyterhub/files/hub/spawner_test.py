@@ -368,7 +368,7 @@ class MySpawner(KubeSpawner):
             'display_name': "JupyterLab Dataset Download Test",
             'default': False,
             'kubespawner_override': {
-                'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.4',
+                'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.7',
             }
         },
     ]
