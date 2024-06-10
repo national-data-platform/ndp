@@ -1,19 +1,19 @@
 # to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
 # 'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
-# helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp-staging --values commons-hub/values_staging.yaml
+# helm upgrade --cleanup-on-fail --install ndp-hub ndp-hub --kube-context nautilus --namespace ndp --values ndp-hub/values_prod.yaml
 
 jupyterhub:
   hub:
+    existingSecret: jupyterhub-secret
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret:
-        oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        oauth_callback_url: https://ndp-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
         userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-staging-jupyterhub.nrp-nautilus.io/
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-jupyterhub.nrp-nautilus.io/
         login_service: keycloak
         username_claim: email
         username_key: preferred_username
@@ -44,7 +44,7 @@ jupyterhub:
         accessModes:
           - ReadWriteOnce
         storage: 10Gi
-        storageClassName: rook-ceph-block
+        storageClassName: seaweedfs-storage-nvme
     resources:
       limits:
         cpu: "2"
@@ -77,19 +77,22 @@ jupyterhub:
       - name: custom-templates
         mountPath: /etc/jupyterhub/custom
     extraConfig:
+
       default.py: |
         from kubespawner import KubeSpawner
         
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://nationaldataplatform.org/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
         aws_bucket_name = 'mlflow'
 
+
         class MySpawner(KubeSpawner):
+        
           notebook_dir = '/srv/starter_content'
           profile_form_template = """
             <style>
@@ -144,21 +147,16 @@ jupyterhub:
             <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
             <br>
             <div class='form-group' id='kubespawner-profiles-list'>
-
-            <label>Image</label>
-            {% for profile in profile_list %}
-            <label for='profile-item-{{ loop.index0 }}' class='form-control input-group'>
-                <div class='col-md-1'>
-                    <input type='radio' name='profile' id='profile-item-{{ loop.index0 }}' value='{{ loop.index0 }}' {% if profile.default %}checked{% endif %} />
-                </div>
-                <div class='col-md-11'>
-                    <strong>{{ profile.display_name }}</strong>
-                    {% if profile.description %}
-                    <p>{{ profile.description }}</p>
-                    {% endif %}
-                </div>
-            </label>
-            {% endfor %}
+            <br>
+            <label for="profile-select">Image</label>
+            <select name="profile" id="profile-select" class="form-control input-lg">
+                {% for profile in profile_list %}
+                <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
+                    {{ profile.display_name }}
+                    {% if profile.description %} - {{ profile.description }}{% endif %}
+                </option>
+                {% endfor %}
+            </select>
             </div>
             
             <!--
@@ -180,7 +178,7 @@ jupyterhub:
 
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> ./data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+            <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
 
           def options_from_form(self, formdata):
@@ -278,15 +276,15 @@ jupyterhub:
 
             self.volume_mounts = [
               {
-                'name': 'volume-{username}',
-                'mountPath': '/srv/starter_content/data',
+                'name': 'volume-sw-{username}',
+                'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
               }
             ]
             self.volumes = [
               {
-                'name': 'volume-{username}',
+                'name': 'volume-sw-{username}',
                 'persistentVolumeClaim': {
-                  'claimName': 'claim-{username}'
+                  'claimName': 'claim-sw-{username}'
                 }
               }
             ]
@@ -332,21 +330,49 @@ jupyterhub:
                   'display_name': "SAGE Pilot Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:sage_v0.1.0.0',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:sage_v0.2.1.3',
                   }
               },
               {
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:earthscope_v0.1.0.1',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:earthscope_v0.2.4.2',
                   }
               },
               {
-                  'display_name': "NASA-GOES R Satellite Data Starter Code",
+                  'display_name': "NAIRR Pilot - NASA Harmonized Landsat Sentinel-2 (HLS) Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nasa_v0.1.0.0',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nair_v0.0.0.12',
+                  }
+              },
+              {
+                  'display_name': "LLM Training (CUDA 12.3, tested with 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.15_big',
+                  }
+              },              
+              {
+                  'display_name': "LLM Service Client (Minimal, No CUDA)",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.11_small',
+                  }
+              },
+              {
+                  'display_name': "TLS Fuel-Size Segmentation 2023",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:tls_class_0.0.0.4',
+                  }
+              },
+              {
+                  'display_name': "NOAA-GOES Analysis",
+                  'default': False,
+                  'kubespawner_override': {
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:noaa_goes_v0.0.0.2',
                   }
               },
           ]
@@ -413,6 +439,7 @@ jupyterhub:
   singleuser:
     uid: 1000
     fsGid: 100
+    allowPrivilegeEscalation: true
     extraPodConfig:
       securityContext:
           fsGroupChangePolicy: "OnRootMismatch"
@@ -420,13 +447,14 @@ jupyterhub:
       blockWithIptables: false
     networkPolicy:
       enabled: false
-    initContainers:
-    - name: volume-permissions
-      image: busybox
-      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
-      volumeMounts:
-      - mountPath: /srv/starter_content/data
-        name: volume-{username}{servername}
+#    commenting out because the volume is not ready when init container starts
+#    initContainers:
+#    - name: volume-permissions
+#      image: busybox
+#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_"]
+#      volumeMounts:
+#      - mountPath: /srv/starter_content/_User-Persistent-Storage_
+#        name: volume-{username}{servername}
 
     storage:
       type: dynamic
@@ -434,12 +462,12 @@ jupyterhub:
       extraVolumes: []
       extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /srv/starter_content/data
+      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
       dynamic:
-        storageClass: rook-ceph-block
-        pvcNameTemplate: claim-{username}-{servername}
-        volumeNameTemplate: volume-{username}-{servername}
-        storageAccessModes: [ReadWriteOnce]
+        storageClass: seaweedfs-storage-nvme
+        pvcNameTemplate: claim-sw-{username}
+        volumeNameTemplate: volume-sw-{username}
+        storageAccessModes: [ReadWriteMany]
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
@@ -473,11 +501,11 @@ jupyterhub:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: haproxy
-    hosts: ["ndp-staging-jupyterhub.nrp-nautilus.io"]
+    hosts: ["ndp-jupyterhub.nrp-nautilus.io"]
     pathSuffix: ''
     tls:
       - hosts:
-        - ndp-staging-jupyterhub.nrp-nautilus.io
+        - ndp-jupyterhub.nrp-nautilus.io
 
   cull:
     enabled: true

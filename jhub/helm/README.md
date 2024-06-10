@@ -45,7 +45,7 @@ helm charts.
 2. Fetch the version of JupyterHub chart mentioned in `requirements.yaml`.
 
    ```bash
-   cd commons-hub
+   cd ndp-hub
    helm dep up
    cd ..
    ```
@@ -53,14 +53,14 @@ helm charts.
 3. Create values.yaml from template and generate and add random bytes for proxy:
 
    ```bash
-   cp commons-hub/values.yaml.template commons-hub/values.yaml
+   cp ndp-hub/values.yaml.template ndp-hub/values.yaml
    ```
 
    ```bash
    openssl rand -hex 32
    ```
    
-   Add output to `commons-hub/values.yaml`:
+   Add output to `ndp-hub/values.yaml`:
   
    ```bash
    jupyterhub:
@@ -70,24 +70,30 @@ helm charts.
 4. Set up Authentication (CiLogon).
 Directions for different [third-party OAuth2](https://zero-to-jupyterhub.readthedocs.io/en/stable/administrator/authentication.html#oauth2-based-authentication). We are going to use [CiLogon](https://z2jh.jupyter.org/en/stable/administrator/authentication.html#cilogon). Here is the link to [register](https://cilogon.org/oauth2/register).
 
+5. Create kubernetes secret
+- In `jhub/helm/ndp-hub/my_secret.yaml`, insert the values
+- Execute:
+```bash
+kubectl create secret generic jupyterhub-secret --from-file=values.yaml=jhub/helm/ndp-hub/my_secret.yaml -n ndp-test
+```
 
-5. Install the hub!
+6. Install the hub!
 
    ```bash
-   helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp --values commons-hub/values.yaml
+   helm upgrade --cleanup-on-fail --install ndp-hub ndp-hub --kube-context nautilus --namespace ndp --values ndp-hub/values.yaml
    ```
 
-   You will need to modify `commons-hub/values.yaml` to set the hostname
+   You will need to modify `ndp-hub/values.yaml` to set the hostname
    to something other than the current default.
 
-6. Wait for the pods to be ready, and enjoy your JupyterHub!
+7. Wait for the pods to be ready, and enjoy your JupyterHub!
 
-7. To stop everything:
+8. To stop everything:
    
    ```bash
-   helm uninstall commons-hub --kube-context nautilus
+   helm uninstall ndp-hub --kube-context nautilus
    ```
 
-8. Debuging:
+9. Debuging:
    Generate yaml file :
-   helm template --namespace=ndp commons-hub commons-hub >> templateWithValues.yaml
+   helm template --namespace=ndp ndp-hub ndp-hub >> templateWithValues.yaml

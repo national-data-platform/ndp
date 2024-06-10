@@ -1,25 +1,19 @@
 # to change environment: ndp-test-jupyterhub to ndp-staging-jupyterhub or ndp-jupyterhub
 # 'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:pgml_v0.1.5_test' to pgml_v0.1.5_staging or pgml_v0.1.5_prod
 #  mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow' to https://ndp-staging.sdsc.edu/mlflow or https://ndp.sdsc.edu/mlflow
-# helm upgrade --cleanup-on-fail --install commons-hub commons-hub --kube-context nautilus --namespace ndp-test --values commons-hub/values_test.yaml
+# helm upgrade --cleanup-on-fail --install ndp-hub ndp-hub --kube-context nautilus --namespace ndp-staging --values ndp-hub/values_staging.yaml
+
 jupyterhub:
   hub:
+    existingSecret: jupyterhub-secret
     config:
       GenericOAuthenticator:
         client_id: jhub-local
-        client_secret:
-        oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
+        oauth_callback_url: https://ndp-staging-jupyterhub.nrp-nautilus.io/hub/oauth_callback
         authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
         token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
         userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
-#        client_id: ndp-jupyterhub-test
-#        client_secret:
-#        authorize_url: https://vdc-192.chpc.utah.edu/realms/NDP/protocol/openid-connect/auth
-#        token_url: https://vdc-192.chpc.utah.edu/realms/NDP/protocol/openid-connect/token
-#        userdata_url: https://vdc-192.chpc.utah.edu/realms/NDP/protocol/openid-connect/userinfo
-#        logout_redirect_url: https://vdc-192.chpc.utah.edu/realms/NDP/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
-
+        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-staging-jupyterhub.nrp-nautilus.io/
         login_service: keycloak
         username_claim: email
         username_key: preferred_username
@@ -27,12 +21,6 @@ jupyterhub:
           state: state
         allow_all: False
         allowed_groups: ["jhub_user"]
-        allowed_idps:
-          urn:mace:incommon:ucsd.edu: #replace with your EntityID
-            allowed_domains:
-              - ucsd.edu
-            username_derivation:
-              username_claim: “email”
         scope:
           - openid
           - profile
@@ -56,7 +44,7 @@ jupyterhub:
         accessModes:
           - ReadWriteOnce
         storage: 10Gi
-        storageClassName: seaweedfs-storage-nvme
+        storageClassName: rook-ceph-block
     resources:
       limits:
         cpu: "2"
@@ -89,20 +77,18 @@ jupyterhub:
       - name: custom-templates
         mountPath: /etc/jupyterhub/custom
     extraConfig:
-
       default.py: |
         from kubespawner import KubeSpawner
-        from urllib.parse import parse_qs
-        
         
         aws_access_key_id = 'admin'
         aws_secret_access_key = 'sample_key'
         mlflow_s3_endpoint_url = 'http://minio:9000'
-        mlflow_tracking_uri = 'https://ndp-test.sdsc.edu/mlflow'
+        mlflow_tracking_uri = 'https://ndp-staging.sdsc.edu/mlflow'
         mlflow_admin_username = 'admin'
         mlflow_admin_password = 'password'
         mlflow_default_user_password = 'password'
         aws_bucket_name = 'mlflow'
+
         class MySpawner(KubeSpawner):
           notebook_dir = '/srv/starter_content'
           profile_form_template = """
@@ -125,7 +111,7 @@ jupyterhub:
 
 
             <label for="gpus">GPUs</label>
-            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="20"/>
+            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="8"/>
             <br/>
             <label for="ram">Cores</label>
             <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
@@ -158,16 +144,21 @@ jupyterhub:
             <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
             <br>
             <div class='form-group' id='kubespawner-profiles-list'>
-            <br>
-            <label for="profile-select">Image</label>
-            <select name="profile" id="profile-select" class="form-control input-lg">
-                {% for profile in profile_list %}
-                <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
-                    {{ profile.display_name }}
-                    {% if profile.description %} - {{ profile.description }}{% endif %}
-                </option>
-                {% endfor %}
-            </select>
+
+            <label>Image</label>
+            {% for profile in profile_list %}
+            <label for='profile-item-{{ loop.index0 }}' class='form-control input-group'>
+                <div class='col-md-1'>
+                    <input type='radio' name='profile' id='profile-item-{{ loop.index0 }}' value='{{ loop.index0 }}' {% if profile.default %}checked{% endif %} />
+                </div>
+                <div class='col-md-11'>
+                    <strong>{{ profile.display_name }}</strong>
+                    {% if profile.description %}
+                    <p>{{ profile.description }}</p>
+                    {% endif %}
+                </div>
+            </label>
+            {% endfor %}
             </div>
             
             <!--
@@ -189,51 +180,8 @@ jupyterhub:
 
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
-          
-            <label for="dataset_id">Dataset:</label>
-            <input name="dataset_id" id="dataset_id" value="">
-            <script type="text/javascript">
-            document.addEventListener("DOMContentLoaded", function() {
-            // Parse the URL query parameters
-            var queryParams = new URLSearchParams(window.location.search);
-            
-            // Get the 'dataset_id' parameter from the URL
-            var datasetId = queryParams.get('dataset_id');
-            
-            // Set the 'dataset_id' hidden input field's value
-            document.getElementById("dataset_id").value = datasetId || '';
-            });
-            </script>
-        
-        
+            <p><i><b>Note:</b> ./data is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
-          #def get_pod_manifest(self):
-          #    # Generate the default pod manifest
-          #    pod_manifest = super().get_pod_manifest()
-          #
-          #    # Assume there's already an initContainers section in the manifest; if not, you'll need to create it
-          #    # Add/modify the environment for the init container
-          #    for init_container in pod_manifest['spec']['initContainers']:
-          #        if init_container['name'] == 'dataset-download':
-          #
-          #            # Ensure there's an env key
-          #            if 'env' not in init_container:
-          #                init_container['env'] = []
-          #
-          #            # Add the DATASET_ID environment variable
-          #            init_container['env'].append({
-          #                'name': 'DATASET_ID',
-          #                'value': self.get_env().get('DATASET_ID', '')
-          #            })
-          #
-          #    return pod_manifest
-        
-          def get_env(self):
-            env = super().get_env()
-            dataset_id = self.user_options.get('dataset_id', '')
-            env['DATASET_ID'] = dataset_id
-            return env
 
           def options_from_form(self, formdata):
             cephfs_pvc_users = {}
@@ -241,17 +189,6 @@ jupyterhub:
                 return formdata
             selected_profile = int(formdata.get('profile', [0])[0])
             options = self._profile_list[selected_profile]
-          
-            # take care of DATASET_ID
-            options['dataset_id'] = str(formdata.get('dataset_id', [''])[0])
-            self.log.info(options)
-            #def get_env(self):
-            #  env = super().get_env()
-            #  dataset_id = self.user_options.get('dataset_id', '')
-            #  env['DATASET_ID'] = dataset_id
-            #  return env
-
-
             self.log.info("Applying KubeSpawner override for profile '%s'", options['display_name'])
             kubespawner_override = options.get('kubespawner_override', {})
 
@@ -342,11 +279,7 @@ jupyterhub:
             self.volume_mounts = [
               {
                 'name': 'volume-{username}',
-                'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
-              },
-              {
-                'name': 'volume-shared-pvc',
-                'mountPath': '/srv/starter_content/_Shared-Storage_',
+                'mountPath': '/srv/starter_content/data',
               }
             ]
             self.volumes = [
@@ -354,12 +287,6 @@ jupyterhub:
                 'name': 'volume-{username}',
                 'persistentVolumeClaim': {
                   'claimName': 'claim-{username}'
-                }
-              },
-              {
-                'name': 'volume-shared-pvc',
-                'persistentVolumeClaim': {
-                  'claimName': 'shared-pvc'
                 }
               }
             ]
@@ -405,57 +332,27 @@ jupyterhub:
                   'display_name': "SAGE Pilot Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:sage_v0.2.1.3',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:sage_v0.1.0.0',
                   }
               },
               {
                   'display_name': "EarthScope Consortium Streaming Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:earthscope_v0.2.4.2',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:earthscope_v0.1.0.1',
                   }
               },
               {
-                  'display_name': "NAIRR Pilot - NASA Harmonized Landsat Sentinel-2 (HLS) Starter Code",
+                  'display_name': "NASA-GOES R Satellite Data Starter Code",
                   'default': False,
                   'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nair_v0.0.0.12',
-                  }
-              },
-              #{
-              #    'display_name': "LLM Training (CUDA 12.3, tested with 1 GPU, 12 cores, 64GB RAM, NVIDIA A100-80GB)",
-              #    'default': False,
-              #    'kubespawner_override': {
-              #      'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.15_big',
-              #    }
-              #},              
-              #{
-              #    'display_name': "LLM Service Client (Minimal, No CUDA)",
-              #    'default': False,
-              #    'kubespawner_override': {
-              #      'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:llm_v0.0.0.11_small',
-              #    }
-              #},
-              {
-                  'display_name': "TLS Fuel-Size Segmentation 2023",
-                  'default': False,
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:tls_class_0.0.0.4',
-                  }
-              },
-              {
-                  'display_name': "NOAA-GOES Analysis",
-                  'default': False,
-                  'kubespawner_override': {
-                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:noaa_goes_v0.0.0.2',
+                    'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:nasa_v0.1.0.0',
                   }
               },
           ]
-        
         c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
         c.JupyterHub.spawner_class = MySpawner
         c.JupyterHub.allow_named_servers = True
-        
         c.MySpawner.environment = {
             'AWS_ACCESS_KEY_ID': aws_access_key_id,
             'AWS_SECRET_ACCESS_KEY': aws_secret_access_key,
@@ -475,8 +372,6 @@ jupyterhub:
           # make username available for MLflow library
           username = spawner.user.name
           spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
-        
-          spawner.environment.update({'DATASET_ID': spawner.user_options['dataset_id']})
         
           # create user inside MLFlow using its admin account
           try:
@@ -501,7 +396,6 @@ jupyterhub:
             logging.info(f'MLFlow Connection error, check that MLFlow service is not down.')
         
         c.MySpawner.pre_spawn_hook = pre_spawn_hook
-        c.MySpawner.http_timeout = 1200
 
   proxy:
     secretToken: 693f72d455485b0a90a27968685e08e006523320e914f07b1f15fc4e8487d6fd
@@ -519,7 +413,6 @@ jupyterhub:
   singleuser:
     uid: 1000
     fsGid: 100
-    allowPrivilegeEscalation: true
     extraPodConfig:
       securityContext:
           fsGroupChangePolicy: "OnRootMismatch"
@@ -527,45 +420,26 @@ jupyterhub:
       blockWithIptables: false
     networkPolicy:
       enabled: false
-#    commenting out because the volume is not ready when init container starts
     initContainers:
     - name: volume-permissions
       image: busybox
-      command: ["sh", "-c", "chmod 777 /srv/starter_content/_Shared-Storage_"]
+      command: ["sh", "-c", "chmod 777 /srv/starter_content/data"]
       volumeMounts:
-      - mountPath: /srv/starter_content/_Shared-Storage_
-        name: volume-shared-pvc
-    - name: volume-permissions2
-      image: busybox
-      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_" ]
-      volumeMounts:
-        - mountPath: /srv/starter_content/_User-Persistent-Storage_
-          name: volume-{username}
-#    - name: dataset-download
-#      image: busybox
-#      env:
-#        - name: DATASET_ID
-#          value: "uniform-ensemble"
-#      volumeMounts:
-#        - name: dataset-data
-#          mountPath: /srv/starter_content/dataset  # The path where files will be downloaded
+      - mountPath: /srv/starter_content/data
+        name: volume-{username}{servername}
 
     storage:
+      type: dynamic
       extraLabels: {}
-      extraVolumes:
-        - name: volume-shared-pvc
-          persistentVolumeClaim:
-            claimName: shared-pvc
-      extraVolumeMounts:
-        - name: volume-shared-pvc
-          mountPath: /srv/starter_content/_Shared-Storage_
+      extraVolumes: []
+      extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
+      homeMountPath: /srv/starter_content/data
       dynamic:
-        storageClass: rook-cephfs-central
-        pvcNameTemplate: claim-{username}
-        volumeNameTemplate: volume-{username}
-        storageAccessModes: [ReadWriteMany]
+        storageClass: rook-ceph-block
+        pvcNameTemplate: claim-{username}-{servername}
+        volumeNameTemplate: volume-{username}-{servername}
+        storageAccessModes: [ReadWriteOnce]
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
@@ -599,11 +473,11 @@ jupyterhub:
     enabled: true
     annotations:
       kubernetes.io/ingress.class: haproxy
-    hosts: ["ndp-test-jupyterhub.nrp-nautilus.io"]
+    hosts: ["ndp-staging-jupyterhub.nrp-nautilus.io"]
     pathSuffix: ''
     tls:
       - hosts:
-        - ndp-test-jupyterhub.nrp-nautilus.io
+        - ndp-staging-jupyterhub.nrp-nautilus.io
 
   cull:
     enabled: true
