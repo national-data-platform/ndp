@@ -175,8 +175,8 @@ services:
     build:
       context: ndp-workspaces-api
       dockerfile: Dockerfile
-    ports:
-      - "8005:8000"
+#    ports:
+#      - "8005:8000"
     restart: always
     environment:
       - CKAN_SQLALCHEMY_URL
@@ -201,6 +201,8 @@ services:
       - download_tmp_dir
       - WFR_DOCS_URL
       - API_PROXY_PATH
+#    volumes:
+#        - ./ndp-workspaces-api/src:/code/src
 
 
 volumes:
