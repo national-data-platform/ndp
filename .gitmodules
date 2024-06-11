@@ -7,3 +7,6 @@
 [submodule "ndp-frontend"]
 	path = ndp-frontend
 	url = git@github.com:national-data-platform/ndp-frontend.git
+[submodule "ndp-workspaces-api"]
+	path = ndp-workspaces-api
+	url = git@github.com:national-data-platform/ndp-workspaces-api.git
