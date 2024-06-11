@@ -1,7 +1,7 @@
 #!/bin/bash
 
-python download_files.py
-rm -rf download_files.py
+#python download_files.py
+#rm -rf download_files.py
 
 mkdir -p /srv/starter_content/_User-Persistent-Storage_/GIT
 git config --global credential.helper "store --file=/srv/starter_content/_User-Persistent-Storage_/GIT/.git-credentials"
