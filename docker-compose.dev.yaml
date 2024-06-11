@@ -200,6 +200,7 @@ services:
       - backend_full_url
       - download_tmp_dir
       - WFR_DOCS_URL
+      - API_PROXY_PATH
 
 
 volumes:
