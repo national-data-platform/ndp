@@ -171,6 +171,39 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
+  workspaces-api:
+    build:
+      context: ndp-workspaces-api
+      dockerfile: Dockerfile
+#    ports:
+#      - "8005:8000"
+    restart: always
+    environment:
+      - CKAN_SQLALCHEMY_URL
+      - server_url
+      - realm
+      - client_id
+      - client_secret
+      - authorization_url
+      - token_url
+      - WFR_BASE_PATH
+      - web_protocol
+      - base_host
+      - root_url
+      - backend_port
+      - frontend_port
+      - db_name
+      - db_user
+      - db_password
+      - db_schema
+      - postgresql_jar_path
+      - backend_full_url
+      - download_tmp_dir
+      - WFR_DOCS_URL
+      - API_PROXY_PATH
+#    volumes:
+#        - ./ndp-workspaces-api/src:/code/src
+
 
 volumes:
   ckan_storage:
