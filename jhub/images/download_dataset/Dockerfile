@@ -1,6 +1,6 @@
 FROM quay.io/jupyter/base-notebook:latest
 
-WORKDIR /srv/starter_content/Dataset_Resources
+WORKDIR /srv/starter_content
 
 USER root
 
@@ -29,9 +29,9 @@ RUN chmod +x /entrypoint.sh
 # install git extension
 RUN pip install --upgrade jupyterlab jupyterlab-git
 
-COPY ndp_jupyterlab_extension-0.1.5-py3-none-any.whl .
-RUN pip install ndp_jupyterlab_extension-0.1.5-py3-none-any.whl
-RUN rm -rf ndp_jupyterlab_extension-0.1.5-py3-none-any.whl
+COPY ndp_jupyterlab_extension-0.1.6-py3-none-any.whl .
+RUN pip install ndp_jupyterlab_extension-0.1.6-py3-none-any.whl
+RUN rm -rf ndp_jupyterlab_extension-0.1.6-py3-none-any.whl
 
 
 USER jovyan
