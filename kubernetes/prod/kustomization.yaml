@@ -3,10 +3,10 @@ kind: Kustomization
 namespace: ndp
 resources:
 - ../base
-- additional-workers.yaml
+# - additional-workers.yaml
 patchesStrategicMerge:
-- taint.yaml
+# - taint.yaml
 - exclude-nodes.yaml
 - worker-nodes.yaml
-- additional-workers-taint.yaml
-- additional-workers-nodes.yaml
+# - additional-workers-taint.yaml
+# - additional-workers-nodes.yaml

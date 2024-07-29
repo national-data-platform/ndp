@@ -35,7 +35,7 @@ spec:
         - "--port"
         - "21002"
         - "--model-names"
-        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002"
+        - "eci-io/climategpt-7b,ECarbenia/grimoiresigils,text-embedding-ada-002,meta-llama/Meta-Llama-3-8B,meta-llama/Meta-Llama-3-70B,meta-llama/Meta-Llama-3.1-8B,meta-llama/Meta-Llama-3.1-70B,meta-llama/Meta-Llama-3.1-405B"
         - "--controller-address"
         - "http://fc-controller:21001"
         - "--worker-address"
@@ -45,11 +45,11 @@ spec:
         imagePullPolicy: Always
         resources:
           limits:
-            nvidia.com/gpu: 2
+            nvidia.com/rtxa6000: 2
             cpu: 8
             memory: 32Gi
           requests:
-            nvidia.com/gpu: 2
+            nvidia.com/rtxa6000: 2
             cpu: 8
             memory: 32Gi
         ports:
@@ -57,6 +57,8 @@ spec:
         env:
           - name: HF_HOME
             value: "/data"
+          - name: CUDA_VISIBLE_DEVICES
+            value: "0,1"
         volumeMounts:
           - mountPath: /data  # Path in the container where the volume should be mounted
             name: worker-volume

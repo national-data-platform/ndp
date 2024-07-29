@@ -10,10 +10,6 @@ spec:
           requiredDuringSchedulingIgnoredDuringExecution:
             nodeSelectorTerms:
               - matchExpressions:
-                  - key: nvidia.com/gpu.product
-                    operator: In
-                    values:
-                      - NVIDIA-RTX-A6000
                   - key: kubernetes.io/hostname
                     operator: NotIn
                     values:
