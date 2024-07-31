@@ -148,6 +148,7 @@ services:
       - KEYCLOAK_ID
       - KEYCLOAK_SECRET
       - KEYCLOAK_ISSUER
+      - KEYCLOAK_TOKEN_URL
       - NEXTAUTH_URL
       - NEXTAUTH_SECRET
       - NEXT_PUBLIC_NDP_PASSWORD
@@ -160,6 +161,8 @@ services:
       - NEXT_PUBLIC_MAILING_LIST_EMAIL
       - NEXT_PUBLIC_NODE_MAILER_EMAIL
       - NEXT_PUBLIC_NODE_MAILER_PSWD
+      - NEXT_WORKSPACE_APIS_URL
+
 
 
   nginx:
@@ -278,4 +281,4 @@ volumes:
   solr_data:
   solr_data2:
   miniodata:
-  jupyterhub:
+#  jupyterhub:
