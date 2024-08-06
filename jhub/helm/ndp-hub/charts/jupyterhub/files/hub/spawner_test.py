@@ -14,111 +14,111 @@ aws_bucket_name = 'mlflow'
 class MySpawner(KubeSpawner):
     notebook_dir = '/srv/starter_content'
     profile_form_template = """
-    
-    
-            <style>
-            /* The profile description should not be bold, even though it is inside the <label> tag */
-                font-weight: normal;
-            }
-            </style>
-
-            <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
-
-            <label for="region">Region</label>
-            <select class="form-control input-lg" name="region">
-              <option value="" selected="selected">Any</option>
-              <option value="us-west">West</option>
-              <option value="us-mountain">Mountain</option>
-              <option value="us-central">Central</option>
-              <option value="us-east">East</option>
-            </select>
 
 
-            <label for="gpus">GPUs</label>
-            <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="20"/>
-            <br/>
-            <label for="ram">Cores</label>
-            <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
-            <br/>
-            <label for="ram">RAM, GB</label>
-            <input class="form-control input-lg" type="number" name="ram" value="16" min="1" max="512"/>
-            <br/>
-            <label for="gputype">GPU type</label>
-            <select class="form-control input-lg" name="gputype">
-              <option value="">Any</option>
-              <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
-              <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
-              <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
-              <option value="Quadro-M4000">Quadro M4000</option>
-              <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>
-              <option value="NVIDIA-A100-SXM4-80GB">NVIDIA A100 80GB</option>
-              <option value="NVIDIA-GeForce-GTX-1080-Ti" selected="selected">NVIDIA GeForce GTX 1080 Ti</option>
-              <option value="NVIDIA-TITAN-Xp">NVIDIA TITAN Xp</option>
-              <option value="Tesla-T4">Tesla T4</option>
-              <option value="NVIDIA-GeForce-RTX-3090">NVIDIA GeForce RTX 3090</option>
-              <option value="NVIDIA-TITAN-RTX">NVIDIA TITAN RTX</option>
-              <option value="NVIDIA-RTX-A5000">NVIDIA RTX A5000</option>
-              <option value="Quadro-RTX-6000">Quadro RTX 6000</option>
-              <option value="Tesla-V100-SXM2-32GB">Tesla V100 SXM2 32GB</option>
-              <option value="NVIDIA-A40">NVIDIA A40</option>
-              <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
-              <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
-            </select>
-            <input class="form-check-input" type="checkbox" name="shm">
-            <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
-            <br>
-            <div class='form-group' id='kubespawner-profiles-list'>
-            <br>
-            <label for="profile-select">Image</label>
-            <select name="profile" id="profile-select" class="form-control input-lg">
-                {% for profile in profile_list %}
-                <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
-                    {{ profile.display_name }}
-                    {% if profile.description %} - {{ profile.description }}{% endif %}
-                </option>
-                {% endfor %}
-            </select>
-            </div>
+                    <style>
+                    /* The profile description should not be bold, even though it is inside the <label> tag */
+                        font-weight: normal;
+                    }
+                    </style>
 
-            <!--
-            <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
+                    <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
 
-            <label for="arch">Architecture</label>
-            <select class="form-control input-lg" name="arch">
-              <option value="amd64" selected="selected">amd64</option>
-              <option value="arm64">arm64</option>
-            </select>
-            -->
+                    <label for="region">Region</label>
+                    <select class="form-control input-lg" name="region">
+                      <option value="" selected="selected">Any</option>
+                      <option value="us-west">West</option>
+                      <option value="us-mountain">Mountain</option>
+                      <option value="us-central">Central</option>
+                      <option value="us-east">East</option>
+                    </select>
 
 
+                    <label for="gpus">GPUs</label>
+                    <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="20"/>
+                    <br/>
+                    <label for="ram">Cores</label>
+                    <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
+                    <br/>
+                    <label for="ram">RAM, GB</label>
+                    <input class="form-control input-lg" type="number" name="ram" value="16" min="1" max="512"/>
+                    <br/>
+                    <label for="gputype">GPU type</label>
+                    <select class="form-control input-lg" name="gputype">
+                      <option value="">Any</option>
+                      <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
+                      <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
+                      <option value="NVIDIA-GeForce-GTX-1080">NVIDIA GeForce GTX 1080</option>
+                      <option value="Quadro-M4000">Quadro M4000</option>
+                      <option value="NVIDIA-A100-PCIE-40GB-MIG-2g.10gb">NVIDIA A100 MIG 2g.10gb</option>
+                      <option value="NVIDIA-A100-SXM4-80GB">NVIDIA A100 80GB</option>
+                      <option value="NVIDIA-GeForce-GTX-1080-Ti" selected="selected">NVIDIA GeForce GTX 1080 Ti</option>
+                      <option value="NVIDIA-TITAN-Xp">NVIDIA TITAN Xp</option>
+                      <option value="Tesla-T4">Tesla T4</option>
+                      <option value="NVIDIA-GeForce-RTX-3090">NVIDIA GeForce RTX 3090</option>
+                      <option value="NVIDIA-TITAN-RTX">NVIDIA TITAN RTX</option>
+                      <option value="NVIDIA-RTX-A5000">NVIDIA RTX A5000</option>
+                      <option value="Quadro-RTX-6000">Quadro RTX 6000</option>
+                      <option value="Tesla-V100-SXM2-32GB">Tesla V100 SXM2 32GB</option>
+                      <option value="NVIDIA-A40">NVIDIA A40</option>
+                      <option value="NVIDIA-RTX-A6000">NVIDIA RTX A6000</option>
+                      <option value="Quadro-RTX-8000">Quadro RTX 8000</option>
+                    </select>
+                    <input class="form-check-input" type="checkbox" name="shm">
+                    <label class="form-check-label" for="shm"> /dev/shm for pytorch</label>
+                    <br>
+                    <div class='form-group' id='kubespawner-profiles-list'>
+                    <br>
+                    <label for="profile-select">Image</label>
+                    <select name="profile" id="profile-select" class="form-control input-lg">
+                        {% for profile in profile_list %}
+                        <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
+                            {{ profile.display_name }}
+                            {% if profile.description %} - {{ profile.description }}{% endif %}
+                        </option>
+                        {% endfor %}
+                    </select>
+                    </div>
 
-            <label for="arch">Architecture</label>
-            <select class="form-control input-lg" name="arch">
-              <option value="amd64" selected="selected">amd64</option>
-            </select>
+                    <!--
+                    <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
 
-            <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
-            <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
-
-            <!--
-            // # for getting dataset_id from url params
-            <label for="dataset_id">Dataset:</label>
-            <input name="dataset_id" id="dataset_id" value="">
-            <script type="text/javascript">
-            document.addEventListener("DOMContentLoaded", function() {
-            // Parse the URL query parameters
-            var queryParams = new URLSearchParams(window.location.search);
-            // Get the 'dataset_id' parameter from the URL
-            var datasetId = queryParams.get('dataset_id');
-            // Set the 'dataset_id' hidden input field's value
-            document.getElementById("dataset_id").value = datasetId || '';
-            });
-            -->
-            </script>
+                    <label for="arch">Architecture</label>
+                    <select class="form-control input-lg" name="arch">
+                      <option value="amd64" selected="selected">amd64</option>
+                      <option value="arm64">arm64</option>
+                    </select>
+                    -->
 
 
-            """
+
+                    <label for="arch">Architecture</label>
+                    <select class="form-control input-lg" name="arch">
+                      <option value="amd64" selected="selected">amd64</option>
+                    </select>
+
+                    <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
+                    <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
+                    <p><i><b>Note:</b> ./_User-Persistent-Storage_New is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+
+                    <!--
+                    // # for getting dataset_id from url params
+                    <label for="dataset_id">Dataset:</label>
+                    <input name="dataset_id" id="dataset_id" value="">
+                    <script type="text/javascript">
+                    document.addEventListener("DOMContentLoaded", function() {
+                    // Parse the URL query parameters
+                    var queryParams = new URLSearchParams(window.location.search);
+                    // Get the 'dataset_id' parameter from the URL
+                    var datasetId = queryParams.get('dataset_id');
+                    // Set the 'dataset_id' hidden input field's value
+                    document.getElementById("dataset_id").value = datasetId || '';
+                    });
+                    -->
+                    </script>
+
+
+                    """
 
     # for getting dataset_id from url params
     # def get_pod_manifest(self):
@@ -249,8 +249,8 @@ class MySpawner(KubeSpawner):
 
         self.volume_mounts = [
             {
-                'name': 'volume-{username}',
-                'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
+                'name': 'volume-new-{username}',
+                'mountPath': '/srv/starter_content/_User-Persistent-Storage_New',
             },
             {
                 'name': 'volume-shared-pvc',
@@ -259,9 +259,9 @@ class MySpawner(KubeSpawner):
         ]
         self.volumes = [
             {
-                'name': 'volume-{username}',
+                'name': 'volume-new-{username}',
                 'persistentVolumeClaim': {
-                    'claimName': 'claim-{username}'
+                    'claimName': 'claim-new-{username}'
                 }
             },
             {
@@ -364,19 +364,77 @@ class MySpawner(KubeSpawner):
         #         'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:minimal_ext_test_v0.0.0.3',
         #     }
         # },
-        {
-            'display_name': "JupyterLab Dataset Download Test",
-            'default': False,
-            'kubespawner_override': {
-                'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.0.7',
-            }
-        },
+        # {
+        #    'display_name': "JupyterLab Dataset Download Test",
+        #    'default': False,
+        #    'kubespawner_override': {
+        #        'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.1.27',
+        #    }
+        # },
     ]
 
 
 c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
 c.JupyterHub.spawner_class = MySpawner
 c.JupyterHub.allow_named_servers = True
+
+# c.Authenticator.refresh_pre_spawn = True
+# c.GenericOAuthenticator.refresh_pre_spawn = True
+# c.Authenticator.auth_refresh_age = 30
+# c.GenericOAuthenticator.auth_refresh_age = 30
+
+from oauthenticator.generic import GenericOAuthenticator
+import requests
+
+
+class MyAuthenticator(GenericOAuthenticator):
+    async def pre_spawn_start(self, user, spawner):
+        refresh_user_result = await self.refresh_user(user)
+        print('Refresh User Result:', refresh_user_result)
+
+    async def refresh_user(self, user, handler=None):
+
+        print(f"Refreshing Authenticator refresh_user for {user.name}")
+        auth_state = await user.get_auth_state()
+        print(auth_state)
+        if auth_state:
+            refresh_token = auth_state.get('refresh_token')
+            client_id = self.client_id
+            client_secret = self.client_secret
+
+            if not self.check_and_refresh_token(refresh_token, client_id, client_secret, auth_state):
+                if handler:
+                    # handler.redirect('/hub/logout') # /hub/logout
+                    return False
+                return False
+        return True
+
+    def check_and_refresh_token(self, refresh_token, client_id, client_secret, auth_state):
+        print(f"Checking refresh_token")
+        response = requests.post("https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/token",
+                                 data={
+                                     'grant_type': 'refresh_token',
+                                     'refresh_token': refresh_token,
+                                     'client_id': 'jupyterhub_test',
+                                     'client_secret': 'TMEITmuyXyzPMdu7HHAKKHQesCdIZxoj'
+                                 })
+
+        if response.status_code == 200:
+            new_token = response.json().get('access_token')
+            auth_state['access_token'] = new_token
+            auth_state['refresh_token'] = refresh_token  # Refresh token typically doesn't change
+            return True
+        else:
+            return False
+
+    # async def refresh_user(self, user, handler=None):
+    #  print(f"Refreshing Authenticator refresh_user for {user.name}")
+    #  handler.redirect('https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/')
+
+
+c.JupyterHub.authenticator_class = MyAuthenticator
+c.MyAuthenticator.auth_refresh_age = 120
+c.MyAuthenticator.refresh_pre_spawn = True
 
 from secrets import token_hex
 
