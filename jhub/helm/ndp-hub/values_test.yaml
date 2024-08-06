@@ -7,12 +7,14 @@ jupyterhub:
     existingSecret: jupyterhub-secret
     config:
       GenericOAuthenticator:
-        client_id: jhub-local
+        client_id: jupyterhub_test
         oauth_callback_url: https://ndp-test-jupyterhub.nrp-nautilus.io/hub/oauth_callback
-        authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
-        token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
-        userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
+        authorize_url: https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/auth
+        token_url: https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/token
+        userdata_url: https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/userinfo
+        logout_redirect_url: https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/
+        auth_refresh_age: 120  # Refresh auth state every 2 minutes
+        refresh_pre_spawn: True  # Refresh auth state before spawning
 
         login_service: keycloak
         username_claim: email
@@ -117,10 +119,10 @@ jupyterhub:
         name: volume-shared-pvc
     - name: volume-permissions2
       image: busybox
-      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_" ]
+      command: [ "sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_New" ]
       volumeMounts:
-        - mountPath: /srv/starter_content/_User-Persistent-Storage_
-          name: volume-{username}
+        - mountPath: /srv/starter_content/_User-Persistent-Storage_New
+          name: volume-new-{username}
 #    - name: dataset-download
 #      image: busybox
 #      env:
@@ -140,16 +142,17 @@ jupyterhub:
         - name: volume-shared-pvc
           mountPath: /srv/starter_content/_Shared-Storage_
       capacity: 100Gi
-      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
+      homeMountPath: /srv/starter_content/_User-Persistent-Storage_New
       dynamic:
-        storageClass: rook-cephfs-central
-        pvcNameTemplate: claim-{username}
-        volumeNameTemplate: volume-{username}
+        storageClass: rook-cephfs
+        pvcNameTemplate: claim-new-{username}
+        volumeNameTemplate: volume-new-{username}
         storageAccessModes: [ReadWriteMany]
 
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
-      tag: custom_v0.6
+#      tag: custom_v0.6
+      tag: dataset_0.1.27
     startTimeout: 1200
     cpu:
       limit: 3
