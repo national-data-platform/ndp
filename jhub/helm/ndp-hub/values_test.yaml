@@ -152,7 +152,7 @@ jupyterhub:
     image:
       name: gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn
 #      tag: custom_v0.6
-      tag: dataset_0.1.27
+      tag: dataset_0.1.28
     startTimeout: 1200
     cpu:
       limit: 3
