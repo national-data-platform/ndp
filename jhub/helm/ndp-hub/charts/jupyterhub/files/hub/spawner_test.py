@@ -26,7 +26,7 @@ class MySpawner(KubeSpawner):
                     }
                     </style>
 
-                    <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
+                    <p><a href="https://portal.nrp-nautilus.io/resources" target="_blank">Available resources page</a></p>
 
                     <label for="region">Region</label>
                     <select class="form-control input" name="region">
@@ -82,7 +82,9 @@ class MySpawner(KubeSpawner):
                         </option>
                         {% endfor %}
                     </select>
-                    <label for="custom_image">Or Bring Your Own Image (JupyterLab Compatible):</label>
+                    <label for="custom_image">Or Bring Your Own Image 
+                        (<a href="https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html" target="_blank">JupyterLab Compatible</a>):
+                    </label>
                     <input name="custom_image" type="text" class="form-control input"/>
                     </div>
 
