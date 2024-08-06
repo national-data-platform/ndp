@@ -1,5 +1,9 @@
 from kubespawner import KubeSpawner
-from urllib.parse import parse_qs
+# from urllib.parse import parse_qs
+import requests
+import logging
+from oauthenticator.generic import GenericOAuthenticator
+from secrets import token_hex
 
 aws_access_key_id = 'admin'
 aws_secret_access_key = 'sample_key'
@@ -25,7 +29,7 @@ class MySpawner(KubeSpawner):
                     <p><a href="https://portal.nrp-nautilus.io/resources">Available resources page</a></p>
 
                     <label for="region">Region</label>
-                    <select class="form-control input-lg" name="region">
+                    <select class="form-control input" name="region">
                       <option value="" selected="selected">Any</option>
                       <option value="us-west">West</option>
                       <option value="us-mountain">Mountain</option>
@@ -35,16 +39,16 @@ class MySpawner(KubeSpawner):
 
 
                     <label for="gpus">GPUs</label>
-                    <input class="form-control input-lg" type="number" name="gpus" value="0" min="0" max="20"/>
+                    <input class="form-control input" type="number" name="gpus" value="0" min="0" max="20"/>
                     <br/>
                     <label for="ram">Cores</label>
-                    <input class="form-control input-lg" type="number" name="cores" value="1" min="0" max="96"/>
+                    <input class="form-control input" type="number" name="cores" value="1" min="0" max="96"/>
                     <br/>
                     <label for="ram">RAM, GB</label>
-                    <input class="form-control input-lg" type="number" name="ram" value="16" min="1" max="512"/>
+                    <input class="form-control input" type="number" name="ram" value="16" min="1" max="512"/>
                     <br/>
                     <label for="gputype">GPU type</label>
-                    <select class="form-control input-lg" name="gputype">
+                    <select class="form-control input" name="gputype">
                       <option value="">Any</option>
                       <option value="NVIDIA-GeForce-RTX-2080-Ti">NVIDIA GeForce RTX 2080 Ti</option>
                       <option value="NVIDIA-GeForce-GTX-1070">NVIDIA GeForce GTX 1070</option>
@@ -69,8 +73,8 @@ class MySpawner(KubeSpawner):
                     <br>
                     <div class='form-group' id='kubespawner-profiles-list'>
                     <br>
-                    <label for="profile-select">Image</label>
-                    <select name="profile" id="profile-select" class="form-control input-lg">
+                    <label for="profile-select">Select Pre-Built Image</label>
+                    <select name="profile" id="profile-select" class="form-control input">
                         {% for profile in profile_list %}
                         <option value="{{ loop.index0 }}" {% if profile.default %}selected{% endif %}>
                             {{ profile.display_name }}
@@ -78,13 +82,15 @@ class MySpawner(KubeSpawner):
                         </option>
                         {% endfor %}
                     </select>
+                    <label for="custom_image">Or Bring Your Own Image (JupyterLab Compatible):</label>
+                    <input name="custom_image" type="text" class="form-control input"/>
                     </div>
 
                     <!--
                     <p>No-CUDA Stack and all B-Data images support ARM architecture.</p>
 
                     <label for="arch">Architecture</label>
-                    <select class="form-control input-lg" name="arch">
+                    <select class="form-control input" name="arch">
                       <option value="amd64" selected="selected">amd64</option>
                       <option value="arm64">arm64</option>
                     </select>
@@ -93,72 +99,32 @@ class MySpawner(KubeSpawner):
 
 
                     <label for="arch">Architecture</label>
-                    <select class="form-control input-lg" name="arch">
+                    <select class="form-control input" name="arch">
                       <option value="amd64" selected="selected">amd64</option>
                     </select>
 
                     <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
                     <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
                     <p><i><b>Note:</b> ./_User-Persistent-Storage_New is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
-
-                    <!--
-                    // # for getting dataset_id from url params
-                    <label for="dataset_id">Dataset:</label>
-                    <input name="dataset_id" id="dataset_id" value="">
-                    <script type="text/javascript">
-                    document.addEventListener("DOMContentLoaded", function() {
-                    // Parse the URL query parameters
-                    var queryParams = new URLSearchParams(window.location.search);
-                    // Get the 'dataset_id' parameter from the URL
-                    var datasetId = queryParams.get('dataset_id');
-                    // Set the 'dataset_id' hidden input field's value
-                    document.getElementById("dataset_id").value = datasetId || '';
-                    });
-                    -->
-                    </script>
-
-
                     """
-
-    # for getting dataset_id from url params
-    # def get_pod_manifest(self):
-    #    # Generate the default pod manifest
-    #    pod_manifest = super().get_pod_manifest()
-    #
-    #    # Assume there's already an initContainers section in the manifest; if not, you'll need to create it
-    #    # Add/modify the environment for the init container
-    #    for init_container in pod_manifest['spec']['initContainers']:
-    #        if init_container['name'] == 'dataset-download':
-    #
-    #            # Ensure there's an env key
-    #            if 'env' not in init_container:
-    #                init_container['env'] = []
-    #
-    #            # Add the DATASET_ID environment variable
-    #            init_container['env'].append({
-    #                'name': 'DATASET_ID',
-    #                'value': self.get_env().get('DATASET_ID', '')
-    #            })
-    #
-    #    return pod_manifest
 
     def options_from_form(self, formdata):
         cephfs_pvc_users = {}
+
         if not self.profile_list or not hasattr(self, '_profile_list'):
             return formdata
+
         selected_profile = int(formdata.get('profile', [0])[0])
         options = self._profile_list[selected_profile]
 
-        # for getting dataset_id from url params
-        # options['dataset_id'] = str(formdata.get('dataset_id', [''])[0])
-        # self.log.info(options)
+        # Ensure kubespawner_override exists
+        if 'kubespawner_override' not in options:
+            options['kubespawner_override'] = {}
 
-        # for getting dataset_id from url params
-        # def get_env(self):
-        #  env = super().get_env()
-        #  dataset_id = self.user_options.get('dataset_id', '')
-        #  env['DATASET_ID'] = dataset_id
-        #  return env
+        # Check if the selected profile is the custom option
+        custom_image = formdata.get('custom_image', [''])[0]
+        if custom_image:
+            options['kubespawner_override']['image'] = custom_image
 
         self.log.info("Applying KubeSpawner override for profile '%s'", options['display_name'])
         kubespawner_override = options.get('kubespawner_override', {})
@@ -357,34 +323,12 @@ class MySpawner(KubeSpawner):
                 'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:noaa_goes_v0.0.0.2',
             }
         },
-        # {
-        #     'display_name': "JupyterLab Extension Test",
-        #     'default': False,
-        #     'kubespawner_override': {
-        #         'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:minimal_ext_test_v0.0.0.3',
-        #     }
-        # },
-        # {
-        #    'display_name': "JupyterLab Dataset Download Test",
-        #    'default': False,
-        #    'kubespawner_override': {
-        #        'image': 'gitlab-registry.nrp-nautilus.io/ndp/ndp-docker-images/jhub-spawn:dataset_0.1.27',
-        #    }
-        # },
     ]
 
 
 c.JupyterHub.template_paths = ['/etc/jupyterhub/custom']
 c.JupyterHub.spawner_class = MySpawner
 c.JupyterHub.allow_named_servers = True
-
-# c.Authenticator.refresh_pre_spawn = True
-# c.GenericOAuthenticator.refresh_pre_spawn = True
-# c.Authenticator.auth_refresh_age = 30
-# c.GenericOAuthenticator.auth_refresh_age = 30
-
-from oauthenticator.generic import GenericOAuthenticator
-import requests
 
 
 class MyAuthenticator(GenericOAuthenticator):
@@ -404,7 +348,6 @@ class MyAuthenticator(GenericOAuthenticator):
 
             if not self.check_and_refresh_token(refresh_token, client_id, client_secret, auth_state):
                 if handler:
-                    # handler.redirect('/hub/logout') # /hub/logout
                     return False
                 return False
         return True
@@ -427,16 +370,11 @@ class MyAuthenticator(GenericOAuthenticator):
         else:
             return False
 
-    # async def refresh_user(self, user, handler=None):
-    #  print(f"Refreshing Authenticator refresh_user for {user.name}")
-    #  handler.redirect('https://idp-test.nationaldataplatform.org/realms/NDP/protocol/openid-connect/logout?redirect_uri=https://ndp-test-jupyterhub.nrp-nautilus.io/')
-
-
 c.JupyterHub.authenticator_class = MyAuthenticator
 c.MyAuthenticator.auth_refresh_age = 120
 c.MyAuthenticator.refresh_pre_spawn = True
 
-from secrets import token_hex
+
 
 os.environ['JUPYTERHUB_CRYPT_KEY'] = token_hex(32)
 
@@ -466,8 +404,16 @@ c.MySpawner.auth_state_hook = auth_state_hook
 
 #
 def pre_spawn_hook(spawner):
-    import requests
-    import logging
+    # pip install jupyterlab-launchpad
+    pip_install_command = "pip install jupyterlab-launchpad"
+
+    # Modify the spawner's start command to include the pip install
+    original_cmd = spawner.cmd or ["jupyterhub-singleuser"]
+    spawner.cmd = [
+        "bash",
+        "-c",
+        f"{pip_install_command} && exec {' '.join(original_cmd)}"
+    ]
 
     # make username available for MLflow library
     username = spawner.user.name
@@ -503,5 +449,4 @@ def pre_spawn_hook(spawner):
 
 
 c.MySpawner.pre_spawn_hook = pre_spawn_hook
-
 c.MySpawner.http_timeout = 1200
