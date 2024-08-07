@@ -422,7 +422,12 @@ def pre_spawn_hook(spawner):
     spawner.environment.update({'MLFLOW_TRACKING_USERNAME': username})
 
     # ToDo: hardcoded
-    spawner.environment.update({'WORKSPACE_API_URL': 'https://fake-api.nrp-nautilus.io/'})
+    spawner.environment.update({"KEYCLOAK_URL":"https://idp-test.nationaldataplatform.org/"})
+    spawner.environment.update({"KEYCLOAK_CLIENT_ID":"jupyterhub_test"})
+    spawner.environment.update({"KEYCLOAK_CLIENT_SECRET":""})
+    spawner.environment.update({"KEYCLOAK_REALM":"NDP"})
+    spawner.environment.update({"CKAN_API_URL":"https://ndp-test.sdsc.edu/catalog/api/3/action/"})
+    spawner.environment.update({"WORKSPACE_API_URL":"https://ndp-test.sdsc.edu/workspaces-api"})
 
     # for getting dataset_id from url params
     # spawner.environment.update({'DATASET_ID': spawner.user_options['dataset_id']})
