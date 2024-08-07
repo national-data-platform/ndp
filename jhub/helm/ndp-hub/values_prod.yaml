@@ -5,15 +5,15 @@
 
 jupyterhub:
   hub:
-    existingSecret: jupyterhub-secret
     config:
       GenericOAuthenticator:
-        client_id: jhub-local
+        client_id: ndp_jupyterhub_prod
+        client_secret:
         oauth_callback_url: https://ndp-jupyterhub.nrp-nautilus.io/hub/oauth_callback
-        authorize_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/auth
-        token_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/token
-        userdata_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/userinfo
-        logout_redirect_url: https://idp.nationaldataplatform.org/auth/realms/ndp/protocol/openid-connect/logout?redirect_uri=https://ndp-jupyterhub.nrp-nautilus.io/
+        authorize_url: https://idp.nationaldataplatform.org/realms/NDP/protocol/openid-connect/auth
+        token_url: https://idp.nationaldataplatform.org/realms/NDP/protocol/openid-connect/token
+        userdata_url: https://idp.nationaldataplatform.org/realms/NDP/protocol/openid-connect/userinfo
+        logout_redirect_url: https://idp.nationaldataplatform.org/realms/NDP/protocol/openid-connect/logout?redirect_uri=https://ndp-jupyterhub.nrp-nautilus.io/
         login_service: keycloak
         username_claim: email
         username_key: preferred_username
@@ -44,7 +44,7 @@ jupyterhub:
         accessModes:
           - ReadWriteOnce
         storage: 10Gi
-        storageClassName: seaweedfs-storage-nvme
+        storageClassName: rook-ceph-block
     resources:
       limits:
         cpu: "2"
@@ -178,7 +178,7 @@ jupyterhub:
 
             <b><i>Note:</b> Please stop your server after it is no longer needed, or in case you want to launch different content image
             <p style="color:green;">In order to stop the server from running Jupyter Lab, go to File > Hub Control Panel > Stop Server</i></p>
-            <p><i><b>Note:</b> ./_User-Persistent-Storage_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
+            <p><i><b>Note:</b> ./_User-Persistent-Storage_CephFS_ is the persistent volume directory, make sure to save your work in it, otherwise it will be deleted</p>
             """
 
           def options_from_form(self, formdata):
@@ -276,15 +276,15 @@ jupyterhub:
 
             self.volume_mounts = [
               {
-                'name': 'volume-sw-{username}',
-                'mountPath': '/srv/starter_content/_User-Persistent-Storage_',
+                'name': 'volume-ceph-{username}',
+                'mountPath': '/srv/starter_content/_User-Persistent-Storage_CephFS_',
               }
             ]
             self.volumes = [
               {
-                'name': 'volume-sw-{username}',
+                'name': 'volume-ceph-{username}',
                 'persistentVolumeClaim': {
-                  'claimName': 'claim-sw-{username}'
+                  'claimName': 'claim-ceph-{username}'
                 }
               }
             ]
@@ -451,9 +451,9 @@ jupyterhub:
 #    initContainers:
 #    - name: volume-permissions
 #      image: busybox
-#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_"]
+#      command: ["sh", "-c", "chmod 777 /srv/starter_content/_User-Persistent-Storage_CephFS_"]
 #      volumeMounts:
-#      - mountPath: /srv/starter_content/_User-Persistent-Storage_
+#      - mountPath: /srv/starter_content/_User-Persistent-Storage_CephFS_
 #        name: volume-{username}{servername}
 
     storage:
@@ -462,11 +462,11 @@ jupyterhub:
       extraVolumes: []
       extraVolumeMounts: []
       capacity: 100Gi
-      homeMountPath: /srv/starter_content/_User-Persistent-Storage_
+      homeMountPath: /srv/starter_content/_User-Persistent-Storage_CephFS_
       dynamic:
-        storageClass: seaweedfs-storage-nvme
-        pvcNameTemplate: claim-sw-{username}
-        volumeNameTemplate: volume-sw-{username}
+        storageClass: rook-cephfs
+        pvcNameTemplate: claim-ceph-{username}
+        volumeNameTemplate: volume-ceph-{username}
         storageAccessModes: [ReadWriteMany]
 
     image:
