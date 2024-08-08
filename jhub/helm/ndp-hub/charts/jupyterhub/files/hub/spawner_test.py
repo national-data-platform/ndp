@@ -407,7 +407,7 @@ c.MySpawner.auth_state_hook = auth_state_hook
 #
 def pre_spawn_hook(spawner):
     # pip install jupyterlab-launchpad
-    pip_install_command = "pip install jupyterlab-launchpad"
+    pip_install_command = "pip install ndp-jupyterlab-extension"
 
     # Modify the spawner's start command to include the pip install
     original_cmd = spawner.cmd or ["jupyterhub-singleuser"]
