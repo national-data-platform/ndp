@@ -29,9 +29,9 @@ RUN chmod +x /entrypoint.sh
 # install git extension
 RUN pip install --upgrade jupyterlab jupyterlab-git
 
-COPY ndp_jupyterlab_extension-0.1.28-py3-none-any.whl .
-RUN pip install ndp_jupyterlab_extension-0.1.28-py3-none-any.whl
-RUN rm -rf ndp_jupyterlab_extension-0.1.28-py3-none-any.whl
+COPY ndp_jupyterlab_extension-0.1.30-py3-none-any.whl .
+RUN pip install ndp_jupyterlab_extension-0.1.30-py3-none-any.whl
+RUN rm -rf ndp_jupyterlab_extension-0.1.30-py3-none-any.whl
 
 
 USER jovyan
