@@ -85,7 +85,7 @@ class MySpawner(KubeSpawner):
                     <label for="custom_image">Or Bring Your Own Image 
                         (<a href="https://jupyter-docker-stacks.readthedocs.io/en/latest/using/selecting.html" target="_blank">JupyterLab Compatible</a>):
                     </label>
-                    <input name="custom_image" type="text" class="form-control input"/>
+                    <input name="custom_image" type="text" class="form-control input" autocomplete="off"/>
                     </div>
 
                     <!--
