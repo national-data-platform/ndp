@@ -278,9 +278,9 @@ services:
   db_workspaces:
     image: postgres:15
     environment:
-      - db_name
-      - db_user
-      - db_password
+      - POSTGRES_USER=${POSTGRES_USER_WORKSPACES}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_WORKSPACES}
+      - POSTGRES_DB=${POSTGRES_DB_WORKSPACES}
     volumes:
       - pg_data_workspaces:/var/lib/postgresql/data
     restart: unless-stopped
