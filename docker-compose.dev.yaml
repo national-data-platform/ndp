@@ -275,7 +275,7 @@ services:
       service: redis2
     restart: always
 
-  db_workspaces:
+  db-workspaces:
     image: postgres:15
     environment:
       - POSTGRES_USER=${POSTGRES_USER_WORKSPACES}
