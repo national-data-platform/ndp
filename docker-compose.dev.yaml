@@ -226,6 +226,7 @@ services:
 
   # second instance of ckan
   ckan2:
+    platform: linux/amd64
     build:
       context: ckan-docker/ckan
       dockerfile: Dockerfile2.dev
@@ -252,6 +253,7 @@ services:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
 
   datapusher2:
+    platform: linux/amd64
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: datapusher2
@@ -270,6 +272,7 @@ services:
     restart: always
 
   redis2:
+    platform: linux/amd64
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: redis2
