@@ -218,8 +218,10 @@ services:
       - admin_username
       - admin_password
       - admin_realm
+      - AWESOME_URL
 
-#    volumes:
+
+  #    volumes:
 #        - ./ndp-workspaces-api/src:/code/src
 
   # second instance of ckan
@@ -273,11 +275,26 @@ services:
       service: redis2
     restart: always
 
+  db_workspaces:
+    image: postgres:15
+    environment:
+      - db_name
+      - db_user
+      - db_password
+    volumes:
+      - pg_data_workspaces:/var/lib/postgresql/data
+    restart: unless-stopped
+    ports:
+      - "5434:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
 volumes:
   ckan_storage:
   ckan_storage2:
   pg_data:
   pg_data2:
+  pg_data_workspaces:
   solr_data:
   solr_data2:
   miniodata:
