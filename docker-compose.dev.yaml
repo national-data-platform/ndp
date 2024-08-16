@@ -56,7 +56,7 @@ services:
       file: ckan-docker/docker-compose.dev.yml
       service: redis
     restart: always
-  
+
   # starting mlflow section
   minio:
     platform: linux/amd64
@@ -162,6 +162,7 @@ services:
       - NEXT_PUBLIC_NODE_MAILER_EMAIL
       - NEXT_PUBLIC_NODE_MAILER_PSWD
       - NEXT_WORKSPACE_APIS_URL
+      - NEXT_PUBLIC_PREKAN_CATALOG_URL
 
 
 
@@ -278,17 +279,17 @@ services:
       service: redis2
     restart: always
 
-  db-workspaces:
-    image: postgres:15
+  workspace-db:
+    image: postgres:latest
     environment:
       - POSTGRES_USER=${POSTGRES_USER_WORKSPACES}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_WORKSPACES}
       - POSTGRES_DB=${POSTGRES_DB_WORKSPACES}
     volumes:
-      - pg_data_workspaces:/var/lib/postgresql/data
+      - pg_workspace_data:/var/lib/postgresql/data
     restart: unless-stopped
-    ports:
-      - "5434:5432"
+      # ports:
+      # - "8888:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
 
@@ -297,7 +298,7 @@ volumes:
   ckan_storage2:
   pg_data:
   pg_data2:
-  pg_data_workspaces:
+  pg_workspace_data:
   solr_data:
   solr_data2:
   miniodata:
