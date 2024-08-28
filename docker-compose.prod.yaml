@@ -6,8 +6,8 @@ services:
     platform: linux/amd64
     build:
       context: ckan-docker/ckan
-      dockerfile: Dockerfile.dev
-      # dockerfile: Dockerfile
+      # dockerfile: Dockerfile.dev
+      dockerfile: Dockerfile
       args:
         - TZ=${TZ}
     env_file:
@@ -186,8 +186,8 @@ services:
       # - jupyterhub
       # - mlflow
     ports:
-      - "0.0.0.0:8443:80"
-      #- "0.0.0.0:8443:443"
+      # - "0.0.0.0:8443:80"
+      - "0.0.0.0:8443:443"
     restart: always
     environment:
       - CKAN_PORT
@@ -242,8 +242,8 @@ services:
     platform: linux/amd64
     build:
       context: ckan-docker/ckan
-      dockerfile: Dockerfile2.dev
-      # dockerfile: Dockerfile
+      # dockerfile: Dockerfile2.dev
+      dockerfile: Dockerfile2
       args:
         - TZ=${TZ}
     env_file:
