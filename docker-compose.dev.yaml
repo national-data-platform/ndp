@@ -264,6 +264,11 @@ services:
     restart: always
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "10"
 
   datapusher2:
     platform: linux/amd64
@@ -283,6 +288,11 @@ services:
       file: ckan-docker/docker-compose.dev.yml
       service: solr2
     restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "200m"
+        max-file: "10"
 
   redis2:
     platform: linux/amd64
