@@ -205,6 +205,8 @@ services:
 #    ports:
 #      - "8005:8000"
     restart: always
+    depends_on:
+      - workspace-db
     environment:
       - CKAN_SQLALCHEMY_URL
       - server_url
@@ -232,6 +234,11 @@ services:
       - admin_password
       - admin_realm
       - AWESOME_URL
+      - from_email
+      - email_smtp
+      - email_port
+      - email_secret
+
 
 
   #    volumes:
