@@ -175,6 +175,8 @@ services:
       - NEXT_PUBLIC_NODE_MAILER_PSWD
       - NEXT_WORKSPACE_APIS_URL
       - NEXT_PUBLIC_PREKAN_CATALOG_URL
+      - NEXT_PUBLIC_NDP_VERSION
+      - NEXT_PUBLIC_NDP_RELEASE_NOTES
 
 
 
@@ -238,9 +240,8 @@ services:
       - email_smtp
       - email_port
       - email_secret
-
-
-
+      - jupyterhub_client_id
+      - jupyterhub_client_secret
   #    volumes:
 #        - ./ndp-workspaces-api/src:/code/src
 
