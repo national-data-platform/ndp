@@ -240,9 +240,8 @@ services:
       - email_smtp
       - email_port
       - email_secret
-
-
-
+      - jupyterhub_client_id
+      - jupyterhub_client_secret
   #    volumes:
 #        - ./ndp-workspaces-api/src:/code/src
 
