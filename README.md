@@ -53,7 +53,7 @@ cp .env.example .env
 ```
 
 Note that will need some .env so please contact the NDP Admins.
-Note: CKAN2 uses its own .env2 file which should be placed into [ckan-docker](/ckan-docker).
+Note: CKAN2 uses its own .env_ckan2 file which should be placed into [root of this repo](/).
 
 The development docker-compose file is docker-compose.dev.yaml.
 
@@ -108,7 +108,7 @@ Next, append `keycloak` to the ckan plugin environment variable `CKAN__PLUGINS`.
 
 ### Remarks
 1. There are cases when ckan doesn't pick up some environment variables from the .env file so sometimes its better to mount a copy of the ckan.ini file. There is a comment in the docker-compose file for this in this [line](/docker-compose.dev.yaml?plain=24). I have noticed that it sometimes doesn't pick up `CKAN___ROOT__PATH` which is needed for the nginx reverse proxy to work.
-2. There are cases when ckan2 doesn't pick up some environment variables from the .env2 file so sometimes its better to mount a copy of the ckan2.ini file.
+2. There are cases when ckan2 doesn't pick up some environment variables from the .env_ckan2 file so sometimes its better to mount a copy of the ckan2.ini file.
 
 ## Production mode
 The production docker-compose file is docker-compose.prod.yaml.

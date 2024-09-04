@@ -255,7 +255,7 @@ services:
       args:
         - TZ=${TZ}
     env_file:
-      - ckan-docker/.env2
+      - .env_ckan2
     depends_on:
       db2:
         condition: service_healthy
