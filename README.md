@@ -33,16 +33,19 @@ The following git submodules are used:
 - [NDP Frontend](https://github.com/national-data-platform/ndp-frontend)
 - [NDP API](https://github.com/national-data-platform/ndp-workspaces-api)
 
+Other dependencies:
+- CKAN NDP Plugin through [ndp plugin](https://github.com/national-data-platform/ckanext-ndp) (_note: this might be deprecated / not needed_)
+- CKAN / CKAN2 Keycloak Plugin through [ndp ckan keycloak plugin](https://github.com/national-data-platform/ckanext-keycloak) (_note: this might be deprecated / not needed_)
+- CKAN2 Catalog Additions Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndpcatalogadditions)
+- Mlflow Keycloak Plugin through [ndp auth plugin](https://github.com/national-data-platform/ndp_mlflow_auth)
+- Python scripts to pre-load ckan and setup the ckan harvester [ckan-data-loader](https://github.com/national-data-platform/ckan-data-loader)
+
 #### NDP JupyterHub:
 - The Dockerspawer version of Jupyterhub provided in this [repo](https://github.com/national-data-platform/jupyterhub-deploy-docker) is used as a starting point/inspiration (local).
 - NDP Jupyterhub Helm chart deployment and image files are located in this [repo](https://github.com/national-data-platform/ndp-jupyterhub) 
 
-Other dependencies:
-- Mlflow Keycloak Plugin through [ndp auth plugin](https://github.com/national-data-platform/ndp_mlflow_auth)
-- CKAN2 Catalog Additions Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndpcatalogadditions)
-- CKAN NDP Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndp) (_note: this might be deprecated / not needed_)
-- Python scripts to pre-load ckan and setup the ckan harvester [ckan-data-loader](https://github.com/national-data-platform/ckan-data-loader)
-
+#### Keycloak:
+- TBD
 
 ## Docker-compose
 With the git submodules we can use docker compose extension functionality to easily
