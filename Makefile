@@ -3,11 +3,9 @@ COMPOSE_FILE=docker-compose.dev.yaml
 default: build-run
 
 build:
-# 	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
 	docker compose -f $(COMPOSE_FILE) build
 
 build-run:
-# 	docker build ./jhub/spawn_image -f ./jhub/spawn_image/Dockerfile_pgml -t jhub-spawn --no-cache
 	docker compose -f $(COMPOSE_FILE) up --build -d
 
 download-ckanext-ndp:
@@ -15,6 +13,9 @@ download-ckanext-ndp:
 
 download-ckanext-keycloak:
 	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-keycloak.git --branch ndp
+
+download-ckanext-ndpcatalogadditions:
+	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndpcatalogadditions.git --branch 0.1.1
 
 update-ckan-config:
 	docker compose -f $(COMPOSE_FILE) exec -it ckan /bin/bash -c "ckan config-tool /srv/app/ckan.ini ckanext.ndp.jupyterhub_endpoint=http://localhost:8000"
@@ -30,5 +31,5 @@ dist-clean:
 
 ckan-clean:
 	docker exec ndp-ckan-1 sh -c "yes | ckan -c ckan.ini db clean && ckan -c ckan.ini search-index clear && ckan -c ckan.ini db init"
-	docker compose -f docker-compose.dev.yaml down ckan
-	docker compose -f docker-compose.dev.yaml up ckan --build -d
+	docker compose -f $(COMPOSE_FILE) down ckan
+	docker compose -f $(COMPOSE_FILE) up ckan --build -d
