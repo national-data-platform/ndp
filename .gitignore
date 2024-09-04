@@ -1,1 +1,4 @@
 /.env
+/.env_ckan2
+/ckan.ini
+/ckan2.ini
