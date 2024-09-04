@@ -45,7 +45,7 @@ Other dependencies:
 - NDP Jupyterhub Helm chart deployment and image files are located in this [repo](https://github.com/national-data-platform/ndp-jupyterhub) 
 
 #### Keycloak:
-- TBD
+- [NDP Keycloak AAI](https://github.com/national-data-platform/ndp-keycloak-aai)
 
 ## Docker-compose
 With the git submodules we can use docker compose extension functionality to easily
@@ -61,8 +61,8 @@ cp ckan2.ini.example ckan2.ini
 
 Note that will need modification of environment variables, depending on your environment setup, so please contact the NDP Admins.
 
-The development docker-compose file is docker-compose.dev.yaml.
-The production docker-compose file is docker-compose.prod.yaml.
+* The development docker-compose file is `docker-compose.dev.yaml`.
+* The production docker-compose file is `docker-compose.prod.yaml`.
 
 The following command builds and runs the containers:
 ```
@@ -130,7 +130,7 @@ make update-ckan-config
 ```
 
 _Note:
-To avoid the issue from remarks, we mount ckan.ini file directly to the container. Therefore, the extension might be need to be inserted under plugins section
+To avoid the issue from the remarks, we can mount ckan.ini file directly to the container. Therefore, the extension might be needed to be inserted under plugins section into
 `ckan.plugins` variable._
 
 After this change you will need to restart ckan to pick up the new changes.
@@ -143,8 +143,10 @@ make download-ckanext-keycloak
 Next, append `keycloak` to the ckan plugin environment variable `CKAN__PLUGINS`.
 
 _Note:
-To avoid the issue from remarks, we mount ckan.ini file directly to the container. Therefore, the extension might be need to be inserted under plugins section
+To avoid the issue from the remarks, we can mount ckan.ini file directly to the container. Therefore, the extension might be needed to be inserted under plugins section into
 `ckan.plugins` variable._
+
+After this change you will need to restart ckan to pick up the new changes.
 
 ### CKAN2 NDPCatalogAdditions Extension
 Install [ckanext-ndpcatalogadditions](https://github.com/national-data-platform/ckanext-ndpcatalogadditions):
@@ -155,8 +157,10 @@ make download-ckanext-ndpcatalogadditions
 Next, append `ndpcatalogadditions` to the ckan plugin environment variable `CKAN__PLUGINS` in `.env_ckan2` file.
 
 _Note:
-To avoid the issue from remarks, we mount ckan2.ini file directly to the container. Therefore, the extension might be need to be inserted under plugins section
+To avoid the issue from the remarks, we can mount ckan2.ini file directly to the container. Therefore, the extension might be needed to be inserted under plugins section into
 `ckan.plugins` variable._
+
+After this change you will need to restart ckan to pick up the new changes.
 
 ### Remarks
 1. There are cases when ckan doesn't pick up some environment variables from the .env file so sometimes its better to mount a copy of the ckan.ini file. There is a comment in the docker-compose file for this in this [line](/docker-compose.dev.yaml?plain=24). I have noticed that it sometimes doesn't pick up `CKAN___ROOT__PATH` which is needed for the nginx reverse proxy to work.
@@ -176,13 +180,13 @@ Look for additional helpful Docker CLI commands in the Development section.
 
 Some remarks in the development section also apply to production. 
 
-### Environments:
+## Environments:
 #### TEST
-https://github.com/national-data-platform/ndp/tree/ndp-test-environment
+https://github.com/national-data-platform/ndp/tree/ndp-test-environment  
 For testing and development.
 
 #### STAGING
-https://github.com/national-data-platform/ndp/tree/ndp-staging-environment
+https://github.com/national-data-platform/ndp/tree/ndp-staging-environment  
 For testing and demos. Pre-production environment.
 
 #### PROD
