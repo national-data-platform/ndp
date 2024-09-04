@@ -38,7 +38,7 @@ The following git submodules are used:
 
 Other dependencies:
 - Mlflow Keycloak Plugin through [ndp auth plugin](https://github.com/national-data-platform/ndp_mlflow_auth)
-- Precan Catalog Additions Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndpcatalogadditions)
+- CKAN2 Catalog Additions Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndpcatalogadditions)
 - CKAN NDP Plugin through [ndp catalog additions plugin](https://github.com/national-data-platform/ckanext-ndp) (_note: this might be deprecated / not needed_)
 - Python scripts to pre-load ckan and setup the ckan harvester [ckan-data-loader](https://github.com/national-data-platform/ckan-data-loader)
 
