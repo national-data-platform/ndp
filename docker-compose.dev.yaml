@@ -323,6 +323,16 @@ services:
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
 
+  mkdocs:
+    image: squidfunk/mkdocs-material
+#    ports:
+#      - "8000:8000"
+    volumes:
+      - ./ndp-documentation:/docs
+    stdin_open: true
+    tty: true
+    restart: always
+
 volumes:
   ckan_storage:
   ckan_storage2:

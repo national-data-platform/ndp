@@ -11,3 +11,6 @@
 	path = ndp-workspaces-api
 	url = git@github.com:national-data-platform/ndp-workspaces-api.git
 	branch = main
+[submodule "ndp-documentation"]
+	path = ndp-documentation
+	url = https://github.com/pramonettivega/ndp-documentation
