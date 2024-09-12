@@ -198,7 +198,7 @@ services:
       - ENV=dev
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
-      - ./nginx/dev.conf:/etc/nginx/conf.d/dev.conf
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
 
   workspaces-api:
     platform: linux/amd64
