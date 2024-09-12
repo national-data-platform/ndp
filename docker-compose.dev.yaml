@@ -195,6 +195,7 @@ services:
       - CKAN_PORT
       - JUPYTERHUB_PROXY_PORT
       - MLFLOW_PORT
+      - ENV=dev
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
