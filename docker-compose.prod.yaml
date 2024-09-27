@@ -177,6 +177,7 @@ services:
       - NEXT_PUBLIC_PREKAN_CATALOG_URL
       - NEXT_PUBLIC_NDP_VERSION
       - NEXT_PUBLIC_NDP_RELEASE_NOTES
+      - NEXT_PUBLIC_NDP_DOCS_LINK
 
 
 
@@ -322,6 +323,16 @@ services:
       # - "8888:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
+  mkdocs:
+    image: squidfunk/mkdocs-material
+#    ports:
+#      - "8000:8000"
+    volumes:
+      - ./ndp-documentation:/docs
+    stdin_open: true
+    tty: true
+    restart: always
 
 volumes:
   ckan_storage:
