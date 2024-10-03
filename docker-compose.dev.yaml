@@ -208,7 +208,7 @@ services:
       dockerfile: Dockerfile
 #    ports:
 #      - "8005:8000"
-    command: ["sh", "-c", "uvicorn src.main:app --workers 8 --host 0.0.0.0 --port 8000"]
+    command: ["sh", "-c", "uvicorn src.main:app --reload --workers 8 --host 0.0.0.0 --port 8000"]
     restart: always  # This will restart the container if it fails or becomes unhealthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]  # Health check to the FastAPI app
