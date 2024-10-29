@@ -43,6 +43,8 @@ services:
 
   db:
     platform: linux/amd64
+    ports:
+      - "5432:5432"
     extends:
       file: ckan-docker/docker-compose.dev.yml
       service: db
