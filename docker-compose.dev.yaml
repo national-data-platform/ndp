@@ -116,6 +116,7 @@ services:
       - MLFLOW_TRACKING_PASSWORD
       - MLFLOW_ROOT_PATH
       - MLFLOW_FLASK_SERVER_SECRET_KEY
+      - MLFLOW_KEYCLOAK_ADMIN_GROUP
     restart: always
 
   # starting jhub section
