@@ -15,7 +15,7 @@ download-ckanext-keycloak:
 	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-keycloak.git --branch v0.3.0
 
 download-ckanext-ndpcatalogadditions:
-	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndpcatalogadditions.git --branch 0.1.1
+	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndpcatalogadditions.git --branch v0.1.1
 
 update-ckan-config:
 	docker compose -f $(COMPOSE_FILE) exec -it ckan /bin/bash -c "ckan config-tool /srv/app/ckan.ini ckanext.ndp.jupyterhub_endpoint=http://localhost:8000"
