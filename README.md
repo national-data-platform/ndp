@@ -165,6 +165,7 @@ After this change you will need to restart ckan to pick up the new changes.
 ### Remarks
 1. There are cases when ckan doesn't pick up some environment variables from the .env file so sometimes its better to mount a copy of the ckan.ini file. There is a comment in the docker-compose file for this in this [line](/docker-compose.dev.yaml?plain=24). I have noticed that it sometimes doesn't pick up `CKAN___ROOT__PATH` which is needed for the nginx reverse proxy to work.
 2. Same issue, as #1. There are cases when ckan2 doesn't pick up some environment variables from the .env_ckan2 file so sometimes its better to mount a copy of the ckan2.ini file.
+3. Both instances of CKAN need the environement variables, `CKAN_SYSADMIN_NAME` and `CKAN_SYSADMIN_PASSWORD`,to be changed in order for the datapusher microservice to not error out.
 
 ## Production mode
 The production docker-compose file is docker-compose.prod.yaml.
