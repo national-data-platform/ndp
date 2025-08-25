@@ -23,7 +23,7 @@ services:
       - ckan_storage:/var/lib/ckan
       - ./src_extensions:/srv/app/src_extensions
       - ./logs:/srv/app/logs
-      - ./supervisord/ckan_harvesting.conf:/etc/supervisord.d/ckan_harvesting.conf
+      - ./ckan-docker/supervisord/ckan_harvesting.conf:/etc/supervisord.d/ckan_harvesting.conf
       - ./ckan.ini:/srv/app/ckan.ini
     restart: always
     healthcheck:
@@ -268,7 +268,7 @@ services:
       - ./src_extensions:/srv/app/src_extensions
       - ./ckan2.ini:/srv/app/ckan.ini
       - ./logs:/srv/app/logs
-      - ./supervisord/ckan_harvesting.conf:/etc/supervisord.d/ckan_harvesting.conf
+      # - ./supervisord/ckan_harvesting.conf:/etc/supervisord.d/ckan_harvesting.conf
     restart: always
     healthcheck:
       test: ["CMD", "wget", "-qO", "/dev/null", "http://localhost:5000"]
