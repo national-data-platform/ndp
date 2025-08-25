@@ -9,10 +9,10 @@ build-run:
 	docker compose -f $(COMPOSE_FILE) up --build -d
 
 download-ckanext-ndp:
-	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndp.git
+	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndp.git --branch v0.1.0
 
 download-ckanext-keycloak:
-	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-keycloak.git --branch ndp
+	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-keycloak.git --branch v0.3.0
 
 download-ckanext-ndpcatalogadditions:
 	git -C ./src_extensions clone git@github.com:national-data-platform/ckanext-ndpcatalogadditions.git --branch 0.1.1
