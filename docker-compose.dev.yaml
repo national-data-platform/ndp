@@ -68,20 +68,6 @@ services:
     restart: always
 
   # starting mlflow section
-  minio:
-    platform: linux/amd64
-    extends:
-      file: mlflow/docker-compose.yaml
-      service: minio
-    restart: always
-
-  create-s3-buckets:
-    platform: linux/amd64
-    extends:
-      file: mlflow/docker-compose.yaml
-      service: create-s3-buckets
-    restart: always
-
   mlflow:
     platform: linux/amd64
     build:
@@ -90,7 +76,6 @@ services:
     volumes:
       - "mlflow:/mlflow"
     depends_on:
-      - minio
       - db
     environment:
       - GUNICORN_CMD_ARGS
@@ -111,6 +96,13 @@ services:
       - MLFLOW_TRACKING_USERNAME
       - MLFLOW_TRACKING_PASSWORD
       - MLFLOW_ROOT_PATH
+    command: >
+      mlflow server
+        --host 0.0.0.0
+        --port ${MLFLOW_PORT}
+        --backend-store-uri postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+        --default-artifact-root /mlflow/artifacts
+        --app-name ndp_mlflow_auth
     restart: always
 
   frontend:
@@ -310,6 +302,4 @@ volumes:
   pg_workspace_data:
   solr_data:
   solr_data2:
-  miniodata:
   mlflow:
-#  jupyterhub:
