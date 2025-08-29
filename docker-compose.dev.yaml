@@ -113,43 +113,6 @@ services:
       - MLFLOW_ROOT_PATH
     restart: always
 
-  # starting jhub section
-  # jupyterhub:
-  #   build:
-  #     context: jhub
-  #     dockerfile: Dockerfile
-  #     args:
-  #       JUPYTERHUB_VERSION: latest
-  #   restart: always
-  #   image: jupyterhub
-  #   volumes:
-  #     - "./jhub/jupyterhub_config.py:/srv/jupyterhub/jupyterhub_config.py:ro"
-  #     - "/var/run/docker.sock:/var/run/docker.sock:rw"
-  #     - "jupyterhub:/data"
-  #   ports:
-  #     - ${JUPYTERHUB_PROXY_PORT}:${JUPYTERHUB_PROXY_PORT}
-  #   environment:
-  #     - JUPYTERHUB_PROXY_PORT
-  #     - JUPYTERHUB_PORT
-  #     - DOCKER_NETWORK_NAME
-  #     - DOCKER_NOTEBOOK_IMAGE
-  #     - DOCKER_NOTEBOOK_DIR
-  #     # for MLFlow connection:
-  #     - AWS_ACCESS_KEY_ID
-  #     - AWS_SECRET_ACCESS_KEY
-  #     - MLFLOW_TRACKING_URI
-  #     - MLFLOW_S3_ENDPOINT_URL
-  #     - AWS_BUCKET_NAME
-  #     - MLFLOW_DEFAULT_PASSWORD
-  #     - MLFLOW_ADMIN_USERNAME
-  #     - MLFLOW_ADMIN_PASSWORD
-  #     # keycloak
-  #     - OAUTH2_AUTHORIZE_URL
-  #     - OAUTH2_TOKEN_URL
-  #     - KEYCLOAK_USERDATA_URL
-  #     - JUPYTERHUB_KEYCLOAK_CLIENT_ID
-  #     - JUPYTERHUB_KEYCLOAK_CLIENT_SECRET
-
   frontend:
 #    platform: linux/amd64
     build:
