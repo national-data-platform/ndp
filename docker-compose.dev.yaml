@@ -225,39 +225,31 @@ services:
       - workspace-db
     environment:
       - CKAN_SQLALCHEMY_URL
-      - server_url
-      - realm
-      - client_id
-      - client_secret
-      - authorization_url
-      - token_url
       - WFR_BASE_PATH
-      - web_protocol
-      - base_host
-      - root_url
-      - backend_port
-      - frontend_port
-      - db_name
-      - db_user
-      - db_password
-      - db_schema
-      - postgresql_jar_path
-      - backend_full_url
-      - download_tmp_dir
+      - ROOT_URL
+      - BACKEND_PORT
+      - WORKSPACE_DB_URL
       - WFR_DOCS_URL
+      - SERVER_URL
+      - REALM
+      - CLIENT_ID
+      - JUPYTERHUB_CLIENT_ID
+      - CLIENT_SECRET
+      - AUTHORIZATION_URL
+      - TOKEN_URL
+      - ADMIN_USERNAME
+      - ADMIN_PASSWORD
+      - ADMIN_REALM
+      - FROM_EMAIL
+      - EMAIL_SMTP
+      - EMAIL_PORT
+      - EMAIL_SECRET
+      - JUPYTERHUB_CLIENT_SECRET
+      - CKAN_DEFAULT
       - API_PROXY_PATH
-      - admin_username
-      - admin_password
-      - admin_realm
-      - AWESOME_URL
-      - from_email
-      - email_smtp
-      - email_port
-      - email_secret
-      - jupyterhub_client_id
-      - jupyterhub_client_secret
-  #    volumes:
-#        - ./ndp-workspaces-api/src:/code/src
+    volumes:
+        - ./ndp-workspaces-api/src:/code/src
+        - ./ndp-workspaces-api/alembic:/code/alembic
 
   # second instance of ckan (we call it Precan)
   ckan2:
