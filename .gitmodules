@@ -13,4 +13,4 @@
 	branch = main
 [submodule "ndp-documentation"]
 	path = ndp-documentation
-	url = https://github.com/pramonettivega/ndp-documentation
+	url = https://github.com/national-data-platform/ndp-documentation
