@@ -168,7 +168,7 @@ services:
       dockerfile: Dockerfile
 #    ports:
 #      - "8005:8000"
-    command: ["sh", "-c", "uvicorn src.main:app --reload --workers 8 --host 0.0.0.0 --port 8000"]
+    # command: ["sh", "-c", "uvicorn src.main:app --reload --workers 8 --host 0.0.0.0 --port 8000"]
     restart: always  # This will restart the container if it fails or becomes unhealthy
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:8000"]  # Health check to the FastAPI app
@@ -278,11 +278,12 @@ services:
       - POSTGRES_DB=${POSTGRES_DB_WORKSPACES}
     volumes:
       - pg_workspace_data:/var/lib/postgresql/data
+      - ./ndp-workspaces-api/sql_scripts:/docker-entrypoint-initdb.d:ro
     restart: unless-stopped
       # ports:
       # - "8888:5432"
     healthcheck:
-      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER_WORKSPACES}", "-d", "${POSTGRES_DB_WORKSPACES}"]
 
   mkdocs:
     image: squidfunk/mkdocs-material
