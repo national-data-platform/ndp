@@ -140,6 +140,10 @@ services:
       - NEXT_PUBLIC_DEMOCRATIZING_DATA_DASHBOARD_URL
       - NEXT_DATA_DEMOCRATIZATION_API
 
+    volumes:
+      - ./ndp-frontend:/app
+      - /app/node_modules
+    command: ["sh", "-c", "npm run build && npm run dev"]
 
   nginx:
     platform: linux/amd64
