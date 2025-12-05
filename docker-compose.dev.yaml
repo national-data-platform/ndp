@@ -275,7 +275,7 @@ services:
     restart: always
 
   workspace-db:
-    image: postgres:latest
+    image: postgres:16.4-alpine
     environment:
       - POSTGRES_USER=${POSTGRES_USER_WORKSPACES}
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD_WORKSPACES}
