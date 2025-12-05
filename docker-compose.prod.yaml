@@ -177,6 +177,7 @@ services:
       - NEXT_PUBLIC_PREKAN_CATALOG_URL
       - NEXT_PUBLIC_NDP_VERSION
       - NEXT_PUBLIC_NDP_RELEASE_NOTES
+      - NEXT_PUBLIC_NDP_DOCS_LINK
 
 
 
@@ -207,6 +208,14 @@ services:
 #    ports:
 #      - "8005:8000"
     restart: always
+#    command: ["sh", "-c", "uvicorn src.main:app --workers 8 --host 0.0.0.0 --port 8000"]
+    command: ["sh", "-c", "gunicorn -k uvicorn.workers.UvicornWorker src.main:app --workers 4 --bind 0.0.0.0:8000"]
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000"]  # Health check to the FastAPI app
+      interval: 30s  # Time between health checks (30 seconds)
+      timeout: 10s    # Time to wait for a health check response
+      retries: 3      # Number of retries before marking the container as "unhealthy"
+      start_period: 10s  # Time to wait before starting health checks after container starts
     depends_on:
       - workspace-db
     environment:
@@ -322,6 +331,16 @@ services:
       # - "8888:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "${POSTGRES_USER}", "-d", "${POSTGRES_DB}"]
+
+  mkdocs:
+    image: squidfunk/mkdocs-material
+#    ports:
+#      - "8000:8000"
+    volumes:
+      - ./ndp-documentation:/docs
+    stdin_open: true
+    tty: true
+    restart: always
 
 volumes:
   ckan_storage:
